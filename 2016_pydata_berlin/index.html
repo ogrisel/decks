@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu:400,300,100);
+
+      body {
+        font-family: 'Ubuntu';
+        font-weight: normal;
+      }
+      h1, h2, h3 {
+        font-family: 'Ubuntu';
+        font-weight: 300;
+      }
+      .remark-slide-content h2 {
+        font-size: 200%;
+        line-height: 200%;
+      }
+
+      .bgheader h1 {
+        background-color: rgba(0, 0, 0, 0.9);
+        opacity: 50%;
+        padding: 0.5em;
+        color: white;
+        border-radius: .5em;
+      }
+      .middlebelowheader {
+        height: 60vh;
+        display: table-cell;
+        vertical-align: middle;
+      }
+      .widespace h2 {
+        line-height: 200%;
+      }
+      .big .remark-code  {
+        font-size: 200%;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+
+      .logo {
+        height: 100px;
+        margin: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Predictive modeling with Python
+## trends and tools
+
+Olivier Grisel - PyData Berlin 2016
+
+
+<img class="logo" alt="Inria" src="images/inria-logo.png" />
+<img class="logo" alt="scikit-learn" src="images/scikit-learn-logo.png" />
+
+---
+
+# Agenda
+
+.middlebelowheader[
+
+## Robots among us
+
+## Some code
+
+## Conclusion
+
+]
+
+---
+
+class: center, middle, bgheader
+background-image: url(https://c1.staticflickr.com/5/4045/4215711636_cbca9a7586_o.jpg)
+
+# Robots among us
+
+---
+class: middle
+
+.big[
+```python
+
+def some_function(a, b):
+    """This is a function"""
+    c = a + b
+    d = a * b
+    retunrn if d if c > 0 else -d
+
+```
+]
+
+
+    </textarea>
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
