@@ -3,76 +3,7 @@
   <head>
     <title>Title</title>
     <meta charset="utf-8">
-    <style>
-      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
-      @import url(https://fonts.googleapis.com/css?family=Ubuntu:400,300,100);
-
-      body {
-        font-family: 'Ubuntu';
-        font-weight: normal;
-      }
-      h1, h2, h3, h4¸ h5, h6 {
-        font-family: 'Ubuntu';
-        font-weight: 300;
-      }
-      .remark-slide-content h2 {
-        font-size: 200%;
-        line-height: 200%;
-      }
-      .singleimg img {
-        max-width: 80%;
-      }
-      .remark-slide-content table {
-        margin-left: auto;
-        margin-right: auto;
-      }
-      .remark-slide-content td {
-        border: 1px solid #ddd;
-        padding: 0.2em;
-      }
-
-      .bgheader h1 {
-        background-color: rgba(0, 0, 0, 0.9);
-        opacity: 50%;
-        padding: 0.5em;
-        color: white;
-        border-radius: .5em;
-      }
-      .middlebelowheader {
-        height: 60vh;
-        display: table-cell;
-        vertical-align: middle;
-        /*background-color: #ddd;*/
-      }
-      .widespace h2 {
-        line-height: 200%;
-      }
-      .big .remark-code  {
-        font-size: 200%;
-      }
-      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
-
-      .affiliations img {
-        height: 100px;
-        margin: 2em;
-      }
-
-      .credits {
-        font-style: italic;
-        font-size: 70%;
-      }
-      /*.titledslide {
-        display: flex;
-        flex-direction: column;
-      }
-      .titledslide h1 {
-      }
-      .titledslide h1::after {
-        display: table-cell;
-        vertical-align: middle;
-        background-color: #ddd;
-      }*/
-    </style>
+    <link rel="stylesheet" type="text/css" href="slides.css">
   </head>
   <body>
     <textarea id="source">
@@ -118,11 +49,11 @@ class: singleimg
 
 .middlebelowheader[
 
-### Typical dataset size increase by **20%** y/y
+### Datasets size increase by **20%** y/y
 
-### Big EC2 instance RAM size increase by **50%** y/y (or more)
+### Big EC2 instance RAM size increase by **50%** y/y
 
-year	| type	       | RAM (GB)
+Year	| Type	       | RAM (GB)
 ------|--------------|---------
 2007  | m1.xlarge    | 15
 2009  | m2.4xlarge   | 68
@@ -142,18 +73,19 @@ class: middle, center, singleimg
 ](images/your-data-set-fits-in-RAM.png)
 
 ---
-# But what if...
+# But...
 
-### ...we have a sample bias in the KDnuggets survey?
+.middlebelowheader[
 
-### Maybe currently favorite tools prevent the typical KDnuggets readers to work with larger datasets efficiently.
+### What if we have a sample bias in the KDnuggets survey?
 
-#### Setting up a "Big Data" cluster requires sysadmin skills
+### Maybe favorite tools prevent the KDnuggets readers to work with larger datasets:
 
-#### Hosting or renting a "Big Data" cluster is too expensive
+- Setting up a "Big Data" cluster requires sysadmin skills
+- Hosting or renting a "Big Data" cluster is too expensive
+- Cluster-induced latency makes analysis much less fun / productive
 
-#### Latency of working with a cluster makes it much less fun / productive
-
+]
 ---
 class: titledslide
 # Agenda

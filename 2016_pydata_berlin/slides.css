@@ -1,0 +1,73 @@
+@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+@import url(https://fonts.googleapis.com/css?family=Ubuntu:400,300,100);
+
+body {
+  font-family: 'Ubuntu';
+  font-weight: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Ubuntu';
+  font-weight: 300;
+  margin-top: 0;
+}
+h1 {
+  margin-top: 0.5em;
+}
+h2 {
+  font-size: 140%;
+  line-height: 150%;
+}
+h3 {
+  font-size: 120%;
+  line-height: 140%;
+}
+
+li {
+  line-height: 160%;
+  font-size: 120%;
+}
+
+.singleimg img {
+  max-width: 80%;
+}
+table {
+  margin: 0 auto 0.8em;
+  border-collapse: collapse;
+}
+td, th {
+  border: 1px solid #ddd;
+  padding: 0.3em 0.5em;
+}
+
+.bgheader h1 {
+  background-color: rgba(0, 0, 0, 0.9);
+  opacity: 50%;
+  padding: 0.5em;
+  color: white;
+  border-radius: .5em;
+}
+.middlebelowheader {
+  /*border: 1px solid gray;*/
+  height: 60vh;
+  display: table-cell;
+  vertical-align: middle;
+  /*background-color: #ddd;*/
+}
+.widespace h2 {
+  line-height: 200%;
+}
+.big .remark-code  {
+  font-size: 200%;
+}
+.remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+
+.affiliations img {
+  height: 100px;
+  margin: 2em;
+}
+
+.credits {
+  font-style: italic;
+  font-size: 70%;
+}
