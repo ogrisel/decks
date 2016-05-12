@@ -42,6 +42,7 @@
         height: 60vh;
         display: table-cell;
         vertical-align: middle;
+        /*background-color: #ddd;*/
       }
       .widespace h2 {
         line-height: 200%;
@@ -60,6 +61,17 @@
         font-style: italic;
         font-size: 70%;
       }
+      /*.titledslide {
+        display: flex;
+        flex-direction: column;
+      }
+      .titledslide h1 {
+      }
+      .titledslide h1::after {
+        display: table-cell;
+        vertical-align: middle;
+        background-color: #ddd;
+      }*/
     </style>
   </head>
   <body>
@@ -143,7 +155,7 @@ class: middle, center, singleimg
 #### Latency of working with a cluster makes it much less fun / productive
 
 ---
-
+class: titledslide
 # Agenda
 
 .middlebelowheader[
@@ -162,6 +174,7 @@ class: middle, center, singleimg
 ---
 class: center, middle, bgheader
 background-image: url(images/racks-8533890844_02fa24474d_o.jpg)
+background-size: cover
 
 # Scaling up vs scaling out
 
@@ -184,7 +197,7 @@ def some_function(a, b):
     """This is a function"""
     c = a + b
     d = a * b
-    retunrn if d if c > 0 else -d
+    return d if c > 0 else -d
 
 ```
 ]
@@ -196,9 +209,9 @@ Background image credits
 
 
     </textarea>
-    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
+    <script src="../remark.min.js" type="text/javascript">
     </script>
-    <script>
+    <script type="text/javascript">
       var slideshow = remark.create();
     </script>
   </body>
