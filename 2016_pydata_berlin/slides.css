@@ -24,8 +24,13 @@ h3 {
 }
 
 li {
-  line-height: 160%;
   font-size: 120%;
+  line-height: 160%;
+}
+
+p {
+font-size: 120%;
+  line-height: 140%;
 }
 
 .singleimg img {
@@ -61,7 +66,9 @@ td, th {
 .big .remark-code  {
   font-size: 200%;
 }
-.remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+.remark-code, .remark-inline-code {
+   font-family: 'Ubuntu Mono';
+}
 
 .affiliations img {
   height: 100px;
