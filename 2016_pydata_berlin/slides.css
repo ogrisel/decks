@@ -1,5 +1,5 @@
-@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
-@import url(https://fonts.googleapis.com/css?family=Ubuntu:400,300,100);
+@import url(webfont-ubuntu-400-300-100.css);
+@import url(webfont-ubuntu-mono-400-700-400italic.css);
 
 body {
   font-family: 'Ubuntu';
@@ -48,11 +48,12 @@ td, th {
   border-radius: .5em;
 }
 .middlebelowheader {
-  /*border: 1px solid gray;*/
-  height: 60vh;
+  /* This fixed size height was found to work well with the slide
+     scaling mechanism of remark.js:
+   */
+  height: 500px;
   display: table-cell;
   vertical-align: middle;
-  /*background-color: #ddd;*/
 }
 .widespace h2 {
   line-height: 200%;
