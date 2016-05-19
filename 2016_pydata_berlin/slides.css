@@ -35,6 +35,8 @@ font-size: 120%;
 
 .singleimg img {
   max-width: 80%;
+  max-height: 600px;
+  border: 2px solid #ddd;
 }
 table {
   margin: 0 auto 0.8em;
