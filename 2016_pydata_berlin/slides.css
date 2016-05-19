@@ -85,3 +85,13 @@ td, th {
   font-style: italic;
   font-size: 70%;
 }
+
+.bunchoflogos img {
+  max-height: 100px;
+  padding: 1em;
+}
+
+.bunchoflogos p {
+  text-align: center;
+  width: 750px;
+}
