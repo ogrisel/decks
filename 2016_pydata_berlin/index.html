@@ -117,17 +117,79 @@ class: middle, center, singleimg
 
 ### Scaling out analysis with dask/distributed
 
+### Comparison to tensorflow
+
 ### Cluster deployment with Docker &amp; Kubernetes
 
-### Scaling out learning with tensorflow
-
 ]
+
+---
+class: center, middle, bgheader
+background-color: rgb(30, 0, 100)
+
+# Evolution of predictive modeling tools
+
+---
+background-image: url(images/01-predictive-modeling-flow.png)
+background-size: contain
+
 ---
 class: center, middle, bgheader
 background-image: url(images/racks-8533890844_02fa24474d_o.jpg)
 background-size: cover
 
 # Scaling up vs scaling out
+
+---
+# Scaling Up
+
+---
+# Scaling Out
+
+
+---
+# Limitations of PySpark
+
+.middlebelowheader[
+
+### Python driver -> Scala / JVM -> Python worker
+
+### Latency induced by cluster
+
+### No pure Python local mode for PySpark
+
+#### Complex traceback / errors for non-scala developers
+
+#### Impossible to use profiler or ipdb for inner calls
+
+]
+
+---
+# The need for scaling out in ML
+
+.middlebelowheader[
+
+### I/O intensive feature engineering and model scoring
+
+#### Loading, filtering, joining, aggregating: SQL-land
+
+#### Click log ⇒ Session features ⇒ User activity features
+
+### CPU intensive model fitting
+
+#### Hyper-parameter search and cross-validation
+
+#### Gradient Boosting, Random Forests, Large Neural Networks
+
+]
+
+---
+class: center, middle, bgheader
+background-image: url(images/floor-2249694239_c27a3ea043_o.jpg)
+background-size: cover
+
+# Scaling out feature engineering with MPP
+
 
 ---
 # Thank you
@@ -193,6 +255,7 @@ Background image credits
 
 - https://www.flickr.com/photos/jemimus/8533890844/
 
+- https://www.flickr.com/photos/antcaz/2249694239/
 
     </textarea>
     <script src="../remark.min.js" type="text/javascript">
