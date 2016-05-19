@@ -102,7 +102,8 @@ class: middle, center, singleimg
 
 ---
 class: center, middle, bgheader
-background-color: rgb(30, 0, 100)
+background-image: url(images/rocks-sea-14004414605_fe7c3dbe1d_k.jpg)
+background-size: cover
 
 # Evolution of predictive modeling tools
 
@@ -148,7 +149,8 @@ background-size: contain
 
 ---
 class: center, middle, bgheader
-background-color: rgb(30, 100, 0)
+background-image: url(images/forest-9026372290_ffed331779_k.jpg)
+background-size: cover
 
 # Where do predictive models fit?
 
@@ -225,6 +227,36 @@ background-size: cover
 ]
 
 ---
+# Dask + Distributed
+
+.middlebelowheader[
+
+<p style="width: 750px; text-align: center">
+<video height="400px" controls
+  src="videos/distributed_demo_with_dask.ogv" />
+</p>
+[Link to notebook](
+  https://github.com/ogrisel/docker-distributed/blob/master/examples/sklearn_parameter_search.ipynb)
+]
+
+---
+# Dask + Distributed limitations
+
+.middlebelowheader[
+
+### Young project (under very active development)
+
+### `dask.dataframe` ⊂ `pandas.DataFrame` or PySpark
+
+### No distributed shuffle:
+
+#### Cannot do distributed `merge` / SQL join
+
+#### Cannot do distributed `grouby` + `aggregate`
+
+]
+
+---
 class: center, middle, bgheader
 background-image: url(images/floor-2249694239_c27a3ea043_o.jpg)
 background-size: cover
@@ -245,6 +277,56 @@ class: bunchoflogos
 ![Presto](images/prestodb-logo.png)
 
 ]
+
+---
+# Problem with the use of SQL in MPP
+
+.middlebelowheader[
+
+## Great for ad-hoc queries but no plotting
+
+## SQL strings in Python code is sad :(
+
+### Not easy to write test / CI
+
+## Standard ORM not a solution
+
+]
+
+---
+# MPP in Python
+
+.middlebelowheader[
+
+### `blaze` &amp; `ibis` provide 'dataframe' like Python API
+
+### Under the hood it can generate SQL for MPP engines
+
+### `blaze` also targets non-SQL backends (pandas, MongoDB, PySpark...)
+
+]
+
+---
+class: middle, mmedium
+
+```python
+>>> import blaze as bz
+>>> iris = bz.Data('postgresql://localhost::iris')
+>>> iris
+    sepal_length  sepal_width  petal_length  petal_width      species
+0            5.1          3.5           1.4          0.2  Iris-setosa
+1            4.9          3.0           1.4          0.2  Iris-setosa
+2            4.7          3.2           1.3          0.2  Iris-setosa
+3            4.6          3.1           1.5          0.2  Iris-setosa
+
+>>> bz.by(iris.species, smallest=iris.petal_length.min(),
+...                      largest=iris.petal_length.max())
+           species  largest  smallest
+0      Iris-setosa      1.9       1.0
+1  Iris-versicolor      5.1       3.0
+2   Iris-virginica      6.9       4.5
+```
+
 
 ---
 class: center, middle, bgheader
@@ -279,9 +361,7 @@ class: middle, center, singleimg
 
 ### PyData ecosystem is evolving towards big data / big compute
 
-### PyData has a lot to gain from scaling
-
-### But it should never sacrifice usability on single host
+### We should never sacrifice usability on a single host
 
 ### dask, tensorflow and ibis / blaze show that it's possible
 
@@ -333,16 +413,42 @@ class: middle
     https://www.youtube.com/playlist?list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri)
 
 ---
-class: middle
+class: medium
 
-.big[
-```python
-def some_function(a, b):
-    """This is a function"""
-    c = a + b
-    d = a * b
-    return d if c > 0 else -d
+# dask/distributed on GKE
 
+.middlebelowheader[
+```
+$ gcloud config set compute/zone europe-west1-d
+$ gcloud container clusters create cluster-1 \
+    --num-nodes 3 \
+    --machine-type n1-highcpu-32 \
+    --scopes bigquery,storage-rw \
+    --wait
+Creating cluster cluster-1...done.
+[...]
+$ gcloud container clusters get-credentials \
+    cluster-1
+```
+]
+
+---
+class: medium
+
+# dask/distributed on GKE
+
+.middlebelowheader[
+```
+$ git clone https://github.com/ogrisel/docker-distributed
+[...]
+$ cd docker-distributed
+$ kubectl create -f kubernetes/
+service "dscheduler" created
+service "dscheduler-status" created
+replicationcontroller "dscheduler" created
+replicationcontroller "dworker" created
+service "jupyter-notebook" created
+replicationcontroller "jupyter-notebook" created
 ```
 ]
 
@@ -353,6 +459,9 @@ Background image credits
 
 - https://www.flickr.com/photos/antcaz/2249694239/
 
+- https://www.flickr.com/photos/benjamine-s/14004414605
+
+- https://www.flickr.com/photos/a-herzog/9026372290
     </textarea>
     <script src="../remark.min.js" type="text/javascript">
     </script>

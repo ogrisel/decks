@@ -72,6 +72,14 @@ td, th {
    font-family: 'Ubuntu Mono';
 }
 
+.medium .remark-code  {
+  font-size: 160%;
+}
+
+.mmedium .remark-code  {
+  font-size: 99%;
+}
+
 .affiliations img {
   height: 100px;
   margin: 2em;
