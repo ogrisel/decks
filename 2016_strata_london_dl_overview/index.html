@@ -75,6 +75,151 @@ class: center, middle, bgheader
 
 # Learning Representations via Context Predictions
 
+---
+class: center, middle
+background-image: url(images/word2vec.png)
+background-size: contain
+
+---
+class: middle, center
+
+<img alt=""
+     src="images/skipgram.png"
+     height="500px"
+/>
+
+.credits[
+Distributed Representations of Words and Phrases and their Compositionality.
+T. Mikolov, I. Sutskever, K. Chen, G. Corrado, J. Dean.
+]
+
+---
+# Skipgram &amp; Negative Sampling
+
+.middlebelowheader[
+#### Maximum likelihood estimation
+
+<div style="text-align: center; width: 750px">
+<img alt=""
+     src="images/skipgram-logloss.png"
+     width="250px"
+/>
+</div>
+
+#### Model parametrization
+
+<div style="text-align: center; width: 750px">
+<img alt=""
+     src="images/skipgram-parametrization.png"
+     width="250px"
+/>
+</div>
+
+#### Negative Sampling
+
+<div style="text-align: center; width: 750px">
+<img alt=""
+     src="images/skipgram-negative-sampling.png"
+     width="500px"
+/>
+</div>
+]
+
+.credits[
+Distributed Representations of Words and Phrases and their Compositionality.
+T. Mikolov, I. Sutskever, K. Chen, G. Corrado, J. Dean.
+]
+
+---
+class: center, middle, singleimg
+
+<img alt=""
+     src="images/word2vec-capital-countries.png"
+     width="700px"
+/>
+
+
+.credits[
+Distributed Representations of Words and Phrases and their Compositionality.
+T. Mikolov, I. Sutskever, K. Chen, G. Corrado, J. Dean.
+]
+---
+# Word2vec success
+
+.middlebelowheader[
+
+## Wide adoption among practicionners
+
+### Good for arbitrary tag similaries
+
+### Can help deal with Out-of-Vocabulary issue
+
+## No easy way to handle full sentences
+
+]
+
+---
+class: center, middle
+background-image: url(images/skip-thought-vectors.png)
+background-size: contain
+
+---
+class: center, middle
+
+<img alt="Skip-Thought RNN"
+     src="images/skip-thought-rnn.png"
+     width="750px"
+/>
+
+
+.credits[
+Skip-Thought Vectors.
+R. Kiros, Y. Zhu, R. Salakhutdinov, R. S. Zemel, A. Torralba, R. Urtasun,
+S. Fidler
+]
+
+---
+class: center, middle
+
+<img alt="Skip-Thought NN"
+     src="images/skip-thought-nn.png"
+     width="750px"
+/>
+
+.credits[
+Skip-Thought Vectors.
+R. Kiros, Y. Zhu, R. Salakhutdinov, R. S. Zemel, A. Torralba, R. Urtasun,
+S. Fidler
+]
+
+---
+class: center, middle
+
+<img alt="Skip-Thought NN"
+     src="images/skip-thought-nn.png"
+     width="750px"
+/>
+
+.credits[
+Skip-Thought Vectors.
+R. Kiros, Y. Zhu, R. Salakhutdinov, R. S. Zemel, A. Torralba, R. Urtasun,
+S. Fidler
+]
+
+---
+class: center, middle
+
+<img alt="Skip-Thought Semantic Relatedness"
+     src="images/skip-thought-semantic-eval.png"
+     width="750px"
+/>
+
+.credits[
+Skip-Thought Vectors.
+R. Kiros, Y. Zhu, R. Salakhutdinov, R. S. Zemel, A. Torralba, R. Urtasun,
+S. Fidler
+]
+
 
 ---
 class: center, middle, bgheader
@@ -109,18 +254,20 @@ class: center, middle, bgheader
 
 ### Bootstrapped by supervised learning (AlphaGo)
 
-### How to collect similar experience for agent control?
-
 ]
 
 ---
 # Reinforcement Learning from sensory input
 
-### Delayed reward 'too small' for high dim state / observations
+.middlebelowheader[
+
+### Reward too rare and delayed for high dim obs
 
 ### Learning to walk will never see positive reward from random policy init
 
 ### How to collect experience or even supervised labels?
+
+]
 
 ---
 class: center, middle
