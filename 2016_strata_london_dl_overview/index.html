@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="slides.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Some recent developments in Deep Learning
+## How to fight label starvation
+
+Olivier Grisel - PyData Berlin 2016
+
+.affiliations[
+  ![Inria](images/inria-logo.png)
+  ![scikit-learn](images/scikit-learn-logo.png)
+]
+
+---
+class: center, middle
+
+# Disclaimer
+
+## None of what follows is my own work
+
+---
+# Agenda
+
+.middlebelowheader[
+
+### Learning Representations via Context Predictions
+
+### Learning Agent Control with Trajectory Optimization
+
+]
+
+---
+# Deep Learning is very successful...
+
+.middlebelowheader[
+
+when labeled data is both **rich** and **abundant**:
+
+- object classification for 1000 classes and 1M images
+
+- speech recognition with thousands of hours of time aligned audio transcriptions
+
+]
+
+---
+# What to do when labels are lacking?
+
+.middlebelowheader[
+
+### Traditional unsupervised learning
+
+#### Clustering, Dimensionality Reduction
+
+### Reconstruction through bottleneck/noise
+
+#### Auto-encoders, Ladder Networks
+
+### Generative models
+
+#### Probabilistic Models P(X), Generative Adversarial Networks
+
+]
+
+---
+class: center, middle, bgheader
+
+# Learning Representations via Context Predictions
+
+
+---
+class: center, middle, bgheader
+
+# Learning Agent Control with Trajectory Optimization
+
+---
+# Agent Control
+
+
+.middlebelowheader[
+
+## Optimal Control / Planning
+
+### Requires accurate model and comprehensive state features
+
+### Trajectory optimization too compute intensive for real-time
+
+]
+
+---
+# Deep Reinforcement Learning
+
+
+.middlebelowheader[
+
+### Agent policy parametrized by a deep network
+
+### Quite successful for Atari Games and AlphaGo
+
+### Collecting a lot of training via (self-)play
+
+### Bootstrapped by supervised learning (AlphaGo)
+
+### How to collect similar experience for agent control?
+
+]
+
+---
+# Reinforcement Learning from sensory input
+
+### Delayed reward 'too small' for high dim state / observations
+
+### Learning to walk will never see positive reward from random policy init
+
+### How to collect experience or even supervised labels?
+
+---
+class: center, middle
+background-image: url(images/supersizing-self-supervision.png)
+background-size: contain
+
+---
+class: center, middle
+
+
+<img alt="Grasping patches"
+     src="images/grasp-patches.png"
+     width="750px"
+/>
+
+.credits[
+  Supersizing Self-supervision: Learning to Grasp from 50K Tries and 700
+  Robot Hours. L. Pinto, A. Gupta.
+]
+
+---
+class: center, middle
+
+<img alt="Grasping network architecture"
+     src="images/grasp-net.png"
+     width="750px"
+/>
+.credits[
+  Supersizing Self-supervision: Learning to Grasp from 50K Tries and 700
+  Robot Hours. L. Pinto, A. Gupta.
+]
+---
+class: center, middle
+
+<img alt="Impact of training set size"
+     src="images/grasp-dataset-size-impact.png"
+     width="750px"
+/>
+.credits[
+  Supersizing Self-supervision: Learning to Grasp from 50K Tries and 700
+  Robot Hours. L. Pinto, A. Gupta.
+]
+---
+
+Discovery of Complex Behaviors through Contact-Invariant Optimization
+
+Igor Mordatch et al.
+
+https://www.youtube.com/watch?v=mhr_jtQrhVA
+
+---
+
+Interactive Control of Diverse Complex Characters with Neural Networks
+
+Igor Mordatch et al.
+
+https://www.youtube.com/watch?v=IxrnT0JOs4o
+
+
+---
+class: middle
+
+# Thank you for your attention!
+
+## Some videos
+
+- [Interactive Control of Diverse Complex Characters with Neural Networks
+   @ NIPS 2015](http://research.microsoft.com/apps/video/default.aspx?id=259609&l=i)
+
+- [Deep Robotic Learning @ ICLR 2016
+   ](http://videolectures.net/iclr2016_levine_deep_learning/)
+
+---
+# References
+
+    </textarea>
+    <script src="../remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'github'
+      });
+    </script>
+  </body>
+</html>
