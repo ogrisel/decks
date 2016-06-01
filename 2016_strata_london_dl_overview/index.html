@@ -52,7 +52,7 @@ when labeled data is both **rich** and **abundant**:
 ]
 
 ---
-# What to do when labels are lacking?
+# How to handle missing labels?
 
 .middlebelowheader[
 
@@ -67,6 +67,8 @@ when labeled data is both **rich** and **abundant**:
 ### Generative models
 
 #### Probabilistic Models P(X), Generative Adversarial Networks
+
+#### Self-supervision, Context Prediction
 
 ]
 
@@ -148,7 +150,7 @@ T. Mikolov, I. Sutskever, K. Chen, G. Corrado, J. Dean.
 
 .middlebelowheader[
 
-## Wide adoption among practicionners
+## Wide adoption among practicioners
 
 ### Good for arbitrary tag similaries
 
@@ -220,6 +222,93 @@ R. Kiros, Y. Zhu, R. Salakhutdinov, R. S. Zemel, A. Torralba, R. Urtasun,
 S. Fidler
 ]
 
+---
+class: center, middle
+background-image: url(images/visual-context-prediction-paper.png)
+background-size: contain
+
+---
+class: center, middle
+
+<img alt="Visual Context Prediction"
+     src="images/visual-context-prediction.png"
+     width="750px"
+/>
+
+.credits[
+Unsupervised Visual Representation Learning by Context Prediction.
+C. Doersch, A. Gupta, A. Efros.
+]
+
+---
+class: center, middle
+
+<img alt="Visual Context Prediction Net"
+     src="images/visual-context-prediction-net.png"
+     height="500px"
+/>
+
+.credits[
+Unsupervised Visual Representation Learning by Context Prediction.
+C. Doersch, A. Gupta, A. Efros.
+]
+
+---
+class: center, middle
+
+<img alt="Visual Context Prediction Nearest Neighbors"
+     src="images/visual-context-prediction-nn.png"
+     height="500px"
+/>
+
+.credits[
+Unsupervised Visual Representation Learning by Context Prediction.
+C. Doersch, A. Gupta, A. Efros.
+]
+
+---
+class: center, middle
+background-image: url(images/jigsaw.png)
+background-size: contain
+
+---
+class: center, middle
+
+<img alt="Visual Context Prediction Puzzle"
+     src="images/jigsaw-puzzle.png"
+     width="750px"
+/>
+
+.credits[
+Unsupervised Learning of Visual Representations by Solving Jigsaw Puzzles
+M. Noroozi and P. Favaro.
+]
+
+---
+class: center, middle
+
+<img alt="Visual Context Prediction Puzzle"
+     src="images/jigsaw-net.png"
+     width="750px"
+/>
+
+.credits[
+Unsupervised Learning of Visual Representations by Solving Jigsaw Puzzles
+M. Noroozi and P. Favaro.
+]
+
+---
+class: center, middle
+
+<img alt="Visual Context Prediction Puzzle"
+     src="images/jigsaw-pascal-voc.png"
+     width="750px"
+/>
+
+.credits[
+Unsupervised Learning of Visual Representations by Solving Jigsaw Puzzles
+M. Noroozi and P. Favaro.
+]
 
 ---
 class: center, middle, bgheader
@@ -326,6 +415,19 @@ Igor Mordatch et al.
 
 https://www.youtube.com/watch?v=IxrnT0JOs4o
 
+
+---
+# Conclusion
+
+.middlebelowheader[
+
+### Deep Architecture are best trained with extensive supervision
+
+### Many unsupervised settings can be reframed as auxiliary supervised task
+
+### Use end-to-end fine-tuning or multi-task learning for final blend
+
+]
 
 ---
 class: middle
