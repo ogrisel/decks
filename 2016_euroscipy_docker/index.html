@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="slides.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Docker for Cluster Computing in Python
+
+Olivier Grisel - EuroSciPy 2016
+
+.affiliations[
+  ![Inria](images/inria-logo.png)
+  ![scikit-learn](images/scikit-learn-logo.png)
+]
+
+---
+# Agenda
+
+.middlebelowheader[
+
+### A quick intro to Docker
+
+### Cluster orchestration with Docker and Kubernetes
+
+### Demo
+
+]
+
+
+---
+class: center, middle, bgheader
+background-image: url(images/container_terminal.jpeg)
+background-size: cover
+
+# What is Docker?
+
+---
+# Docker is:
+
+.middlebelowheader[
+
+### Not a virtual machine system
+
+### Linux container + Layered file-system + Abstract network
+
+### It can run in a VM (or not)
+
+]
+
+---
+class: singleimg
+# VM vs Container
+
+.middlebelowheader[
+
+![VM-based hosting vs Container-based hosting](images/container-vs-vm.png)
+
+]
+
+---
+# Why is docker nicer than VMs
+
+.middlebelowheader[
+
+### Less overhead: isolation vs virtualization
+
+### Layered FS: incremental diffs + common base images
+
+### Nice command line based UX
+
+### Simple reproducible builds and deployment
+
+]
+
+---
+class: singleimg
+# Docker architecture
+
+.middlebelowheader[
+
+![Architecture of Docker](images/docker-architecture.svg)
+
+]
+
+---
+# Some use cases
+
+.middlebelowheader[
+
+### Host applications / services efficiently
+
+### Fast developer environment setup
+
+### Flexible build / Continuous Integration
+
+### Quickly provision a compute cluster
+
+### Reproducible science
+
+]
+
+---
+# Getting started with Docker
+
+.middlebelowheader[
+
+https://docs.docker.com/engine/installation/
+
+### Windows: docker daemon runs under Linux with Hyper-V or Virtualbox
+
+### OSX: docker daemon runs under Linux with xhyve or Virtualbox
+
+### Linux: docker daemon runs without VM
+
+### Cross-platform docker client binary
+
+]
+
+---
+class: medium
+# Running in a container
+
+```
+$ docker run image:tag cmd arguments
+```
+
+---
+class: medium
+# Running in a container
+
+```
+$ docker run `image:tag` cmd arguments
+```
+
+---
+class: medium
+# Running in a container
+
+```
+$ docker run image:tag `cmd arguments`
+```
+
+---
+class: medium
+# Running in a container
+
+```
+$ docker run `--rm` image:tag cmd arguments
+```
+
+---
+class: medium
+# A simple example
+
+```
+$ docker run --rm python:3.5 python -c "print(40 + 2)"
+```
+
+---
+class: medium
+# A simple example
+
+```
+$ docker run --rm python:3.5 python -c "print(40 + 2)"
+Unable to find image 'python:3.5' locally
+latest: Pulling from library/python
+
+357ea8c3d80b: Already exists
+52befadefd24: Pull complete
+3c0732d5313c: Pull complete
+ceb711c7e301: Downloading [=========>    ] 90.27 MB/129.7 MB
+4211bb537697: Download complete
+71f9074c0739: Download complete
+3e5349707036: Download complete
+```
+
+---
+class: medium
+# A simple example
+
+```
+$ docker run --rm python:3.5 python -c "print(40 + 2)"
+Unable to find image 'python:3.5' locally
+latest: Pulling from library/python
+
+357ea8c3d80b: Already exists
+52befadefd24: Pull complete
+3c0732d5313c: Pull complete
+ceb711c7e301: Pull complete
+4211bb537697: Pull complete
+71f9074c0739: Pull complete
+3e5349707036: Pull complete
+Digest: sha256:a755ad5a30b2[...]
+Status: Downloaded newer image for python:3.5
+42
+```
+---
+class: medium
+# A simple example
+
+```
+$ docker run --rm python:3.5 python -c "print(40 + 2)"
+Unable to find image 'python:3.5' locally
+latest: Pulling from library/python
+
+357ea8c3d80b: Already exists
+52befadefd24: Pull complete
+3c0732d5313c: Pull complete
+ceb711c7e301: Pull complete
+4211bb537697: Pull complete
+71f9074c0739: Pull complete
+3e5349707036: Pull complete
+Digest: sha256:a755ad5a30b2[...]
+Status: Downloaded newer image for python:3.5
+42
+$ docker run --rm python:3.5 python -c "print(40 + 3)"
+43
+```
+---
+class: medium
+# Interactive sessions
+
+```
+$ docker run --rm -ti python:3.5 bash
+root@10d2dfedb935:/#
+```
+---
+class: medium
+# Interactive sessions
+
+```
+$ docker run --rm -ti python:3.5 bash
+root@10d2dfedb935:/# ps
+  PID TTY          TIME CMD
+    1 ?        00:00:00 bash
+    8 ?        00:00:00 ps
+root@10d2dfedb935:/#
+```
+---
+class: medium
+# Interactive sessions
+
+```
+$ docker run --rm -ti python:3.5 bash
+root@10d2dfedb935:/# ps
+  PID TTY          TIME CMD
+    1 ?        00:00:00 bash
+    8 ?        00:00:00 ps
+root@10d2dfedb935:/# python
+Python 3.5.2 (default, Aug  9 2016, 20:58:38)
+[GCC 4.9.2] on linux
+>>>
+```
+---
+class: medium
+# Interactive sessions
+
+```
+$ docker run --rm -ti python:3.5 bash
+root@10d2dfedb935:/# ps
+  PID TTY          TIME CMD
+    1 ?        00:00:00 bash
+    8 ?        00:00:00 ps
+root@10d2dfedb935:/# python
+Python 3.5.2 (default, Aug  9 2016, 20:58:38)
+[GCC 4.9.2] on linux
+>>> 40 + 2
+42
+```
+---
+class: medium
+# Interactive sessions
+
+```
+$ docker run --rm -ti python:3.5 bash
+root@10d2dfedb935:/# ps
+  PID TTY          TIME CMD
+    1 ?        00:00:00 bash
+    8 ?        00:00:00 ps
+root@10d2dfedb935:/# python
+Python 3.5.2 (default, Aug  9 2016, 20:58:38)
+[GCC 4.9.2] on linux
+>>> 40 + 2
+42
+>>> ^D
+root@10d2dfedb935:/# exit
+```
+
+---
+class: medium
+# A real-life example
+
+
+```
+$ cd bokeh/bokeyjs
+$ npm install
+[Bunch or errors caused by a broken nodejs install]
+```
+
+---
+class: medium
+# A real-life example
+
+
+```
+$ cd bokeh/bokeyjs
+$ docker run --rm -v $PWD:/io node \
+    bash -c "cd /io &amp;&amp; npm install"
+npm info it worked if it ends with ok
+npm info using npm@3.10.3
+npm info using node@v6.4.0
+npm info attempt registry request try #1 at 9:52:40 AM
+npm http request GET https://registry.npmjs.org/underscore
+[...] # Download the Internet
+
+npm info ok
+$ ls node_modules | wc -l
+604
+```
+
+---
+class: center, middle, bgheader
+background-image: url(images/orchestra.jpeg)
+background-size: cover
+
+# Orchestration
+
+
+---
+# Conclusion
+
+.middlebelowheader[
+
+### Docker is a useful developer tool
+
+### Containers make cluster setup reproducible and cloud agnostic
+
+### Docker swarm vs Kubernetes vs Mesos: learn any one and understand others
+
+]
+
+---
+# Thank you
+
+.middlebelowheader[
+<div style="display: flex">
+
+<div style="width: 50%; padding: 1em">
+<p><img height="35px" src="images/carina-logo.svg" /></p>
+<p>
+<strong>Rackspace</strong> for free cloud resources to support SciPy
+projects and for helping the Python community in general.
+</p>
+</div>
+
+<div style="width: 50%; padding: 1em">
+<p><img height="35px" src="images/gcp-logo.png" /></p>
+<p>
+<strong>Google</strong> for GCP credits to test distributed Python with
+Kubernetes.
+</p>
+</div>
+
+</div>
+
+<div style="margin: 1em auto; width: 400px">
+<p><img height="50px" src="images/inria-logo.png" /></p>
+<p>
+<strong>Inria</strong> for supporting my work on scikit-learn and related
+projects.
+</p>
+</div>
+]
+
+---
+class: middle
+
+# Thank you!
+
+## Sample configuration:
+
+- [github.com/ogrisel/docker-distributed](http://github.com/ogrisel/docker-distributed)
+
+## Those slides:
+
+- [ogrisel.github.io/decks/2016_euroscipy_docker](
+    http://ogrisel.github.io/decks/2016_euroscipy_docker)
+
+---
+# Image credits
+
+- "Docker Architecture" https://docs.docker.com/engine/understanding-docker/
+
+- "Container terminal" by Martin Abegglen: https://flic.kr/p/b7rw5D
+
+- "Symphonic Orchestra and Choir of the WYD" by HazteOir.org:
+  https://flic.kr/p/c5B6Cd
+
+    </textarea>
+    <script src="../remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'github',
+        highlightSpans: true
+      });
+    </script>
+  </body>
+</html>
