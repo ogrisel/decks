@@ -97,6 +97,10 @@ td, th {
   visibility: hidden;
 }
 
+.small {
+  font-size: 90%;
+}
+
 .credits {
   font-style: italic;
   font-size: 70%;

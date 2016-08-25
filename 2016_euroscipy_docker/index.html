@@ -316,10 +316,10 @@ root@10d2dfedb935:/# exit
 class: medium
 # A real-life example
 
-
 ```
 $ cd bokeh/bokeyjs
-$ npm install
+$ npm install -g gulp
+$ gulp build
 [Bunch or errors caused by a broken nodejs install]
 ```
 
@@ -329,19 +329,9 @@ class: medium
 
 
 ```
-$ cd bokeh/bokeyjs
-$ docker run --rm -v $PWD:/io node \
-    bash -c "cd /io &amp;&amp; npm install"
-npm info it worked if it ends with ok
-npm info using npm@3.10.3
-npm info using node@v6.4.0
-npm info attempt registry request try #1 at 9:52:40 AM
-npm http request GET https://registry.npmjs.org/underscore
-[...] # Download the Internet
-
-npm info ok
-$ ls node_modules | wc -l
-604
+$ cd bokeh
+$ docker run --rm --volume $PWD:/io node \
+    bash -c "cd /io/bokehjs &amp;&amp; npm install -g gulp &amp;&amp; gulp build"
 ```
 
 ---
@@ -350,20 +340,32 @@ class: medium
 
 
 ```
-$ cd bokeh/bokeyjs
-$ docker run --rm `-v $PWD:/io` node \
-    bash -c "`cd /io` &amp;&amp; npm install"
+$ cd bokeh
+$ docker run --rm `--volume $PWD:/io` node \
+    bash -c "`cd /io/bokehjs` &amp;&amp; npm install -g gulp &amp;&amp; gulp build"
+```
+
+---
+class: medium
+# A real-life example
+
+
+```
+$ cd bokeh
+$ docker run --rm --volume $PWD:/io node \
+    bash -c "cd /io/bokehjs &amp;&amp; npm install -g gulp &amp;&amp; gulp build"
 npm info it worked if it ends with ok
 npm info using npm@3.10.3
 npm info using node@v6.4.0
-npm info attempt registry request try #1 at 9:52:40 AM
-npm http request GET https://registry.npmjs.org/underscore
+npm info attempt registry request try #1 at 12:45:51 PM
+npm http request GET https://registry.npmjs.org/gulp
 [...] # Download the Internet
-
-npm info ok
-$ ls node_modules | wc -l
-604
+[13:03:42] Finished 'build' after 10 s
+*$ ls bokehjs/node_modules | wc -l
+*604
 ```
+
+
 
 ---
 class: center, middle, bgheader
@@ -454,12 +456,81 @@ COPY examples .
 ```
 
 ---
+class: middle, medium
+
+```
+$ docker build -t ogrisel/distributed .
+Sending build context to Docker daemon 178.2 kB
+Step 1 : FROM debian:jessie
+ ---> 1b01529cc499
+Step 2 : MAINTAINER Olivier Grisel <olivier.grisel@ensta.org>
+ ---> Using cache
+ ---> 37887ee139f1
+Step 3 : RUN apt-get update -yqq  &amp;&amp; apt-get install -yqq wget [...]
+ ---> Using cache
+ ---> 3c2b8caccb80
+[...]
+```
+
+---
+class: middle, medium
+
+```
+$ docker build -t ogrisel/distributed .
+Sending build context to Docker daemon 178.2 kB
+Step 1 : FROM debian:jessie
+ ---> 1b01529cc499
+Step 2 : MAINTAINER Olivier Grisel <olivier.grisel@ensta.org>
+ ---> Using cache
+ ---> 37887ee139f1
+Step 3 : RUN apt-get update -yqq  &amp;&amp; apt-get install -yqq wget [...]
+ ---> Using cache
+ ---> 3c2b8caccb80
+[...]
+$ docker run --rm ogrisel/distributed \
+    python -c "import sklearn; print(sklearn.__version__)"
+0.17.1
+$ docker push ogrisel/distributed
+```
+
+---
 class: center, middle, bgheader
 background-image: url(images/orchestra.jpeg)
 background-size: cover
 
 # Orchestration
 
+---
+# Orchestration tools
+
+.middlebelowheader[
+<div style="display: flex">
+
+<div style="width: 50%; padding: 1em">
+<p><img height="35px" src="images/carina-logo.svg" /></p>
+<p>
+<strong>Docker compose &amp; Docker swarm mode in 1.12
+</p>
+</div>
+
+<div style="width: 50%; padding: 1em">
+<p><img height="35px" src="images/gcp-logo.png" /></p>
+<p>
+<strong>Google</strong> for GCP credits to test distributed Python with
+Kubernetes.
+</p>
+</div>
+
+</div>
+
+<div style="margin: 1em auto; width: 400px">
+<p><img height="50px" src="images/inria-logo.png" /></p>
+<p>
+<strong>Inria</strong> for supporting my work on scikit-learn and related
+projects.
+</p>
+</div>
+]
 
 ---
 # Conclusion
@@ -522,6 +593,8 @@ class: middle
     http://ogrisel.github.io/decks/2016_euroscipy_docker)
 
 ---
+class: small
+
 # Image credits
 
 - "Supermicro Storage" by Robert: https://flic.kr/p/e17qr3
