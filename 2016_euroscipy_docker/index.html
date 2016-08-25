@@ -24,14 +24,41 @@ Olivier Grisel - EuroSciPy 2016
 
 .middlebelowheader[
 
+### Distributed ML with joblib and dask/distributed
+
 ### A quick intro to Docker
 
 ### Cluster orchestration with Docker and Kubernetes
 
-### Demo
+]
+
+---
+class: center, middle, bgheader
+background-image: url(images/racks.jpeg)
+background-size: cover
+
+# Distributed ML with joblib and dask/distributed
+
+---
+class: singleimg
+# A cluster for sklearn
+
+.middlebelowheader[
+
+![Cluster diagram](images/gridsearch-user-case.png)
 
 ]
 
+---
+# Demo
+
+.middlebelowheader[
+
+https://github.com/ogrisel/docker-distributed
+
+Have a look a the notebooks in the `examples` folder.
+
+]
 
 ---
 class: center, middle, bgheader
@@ -112,11 +139,11 @@ class: singleimg
 
 https://docs.docker.com/engine/installation/
 
-### Windows: docker daemon runs under Linux with Hyper-V or Virtualbox
+### Windows: daemon in Linux with Hyper-V or Virtualbox
 
-### OSX: docker daemon runs under Linux with xhyve or Virtualbox
+### OSX: daemon in Linux with xhyve or Virtualbox
 
-### Linux: docker daemon runs without VM
+### Linux: daemon on host without VM
 
 ### Cross-platform docker client binary
 
@@ -127,7 +154,7 @@ class: medium
 # Running in a container
 
 ```
-$ docker run image:tag cmd arguments
+$ docker run python:3.5 python -c "print(40 + 2)"
 ```
 
 ---
@@ -135,7 +162,7 @@ class: medium
 # Running in a container
 
 ```
-$ docker run `image:tag` cmd arguments
+$ docker run `python:3.5` python -c "print(40 + 2)"
 ```
 
 ---
@@ -143,28 +170,21 @@ class: medium
 # Running in a container
 
 ```
-$ docker run image:tag `cmd arguments`
+$ docker run python:3.5 `python -c "print(40 + 2)"`
 ```
+
 
 ---
 class: medium
 # Running in a container
 
 ```
-$ docker run `--rm` image:tag cmd arguments
+$ docker run `--rm` python:3.5 python -c "print(40 + 2)"
 ```
 
 ---
 class: medium
-# A simple example
-
-```
-$ docker run --rm python:3.5 python -c "print(40 + 2)"
-```
-
----
-class: medium
-# A simple example
+# Running in a container
 
 ```
 $ docker run --rm python:3.5 python -c "print(40 + 2)"
@@ -182,7 +202,7 @@ ceb711c7e301: Downloading [=========>    ] 90.27 MB/129.7 MB
 
 ---
 class: medium
-# A simple example
+# Running in a container
 
 ```
 $ docker run --rm python:3.5 python -c "print(40 + 2)"
@@ -202,7 +222,7 @@ Status: Downloaded newer image for python:3.5
 ```
 ---
 class: medium
-# A simple example
+# Running in a container
 
 ```
 $ docker run --rm python:3.5 python -c "print(40 + 2)"
@@ -325,6 +345,27 @@ $ ls node_modules | wc -l
 ```
 
 ---
+class: medium
+# A real-life example
+
+
+```
+$ cd bokeh/bokeyjs
+$ docker run --rm `-v $PWD:/io` node \
+    bash -c "`cd /io` &amp;&amp; npm install"
+npm info it worked if it ends with ok
+npm info using npm@3.10.3
+npm info using node@v6.4.0
+npm info attempt registry request try #1 at 9:52:40 AM
+npm http request GET https://registry.npmjs.org/underscore
+[...] # Download the Internet
+
+npm info ok
+$ ls node_modules | wc -l
+604
+```
+
+---
 class: center, middle, bgheader
 background-image: url(images/orchestra.jpeg)
 background-size: cover
@@ -394,6 +435,8 @@ class: middle
 
 ---
 # Image credits
+
+- "Supermicro Storage" by Robert: https://flic.kr/p/e17qr3
 
 - "Docker Architecture" https://docs.docker.com/engine/understanding-docker/
 
