@@ -20,7 +20,7 @@ Olivier Grisel - EuroSciPy 2016
 ]
 
 ---
-# Agenda
+# Outline
 
 .middlebelowheader[
 
@@ -367,6 +367,94 @@ $ ls node_modules | wc -l
 
 ---
 class: center, middle, bgheader
+background-image: url(images/lego-painter.jpeg)
+background-size: cover
+
+# Building an image
+
+---
+class: middle, medium
+
+```
+$ git clone https://github.com/ogrisel/docker-distributed
+$ ls docker-distributed
+docker-compose.yml
+*Dockerfile
+examples
+kubernetes
+README.md
+*requirements.txt
+```
+
+---
+class: middle, medium
+
+```
+$ git clone https://github.com/ogrisel/docker-distributed
+$ ls docker-distributed
+docker-compose.yml
+Dockerfile
+*examples
+kubernetes
+README.md
+requirements.txt
+```
+
+---
+class: middle, medium
+
+```
+$ git clone https://github.com/ogrisel/docker-distributed
+$ ls docker-distributed
+*docker-compose.yml
+Dockerfile
+examples
+*kubernetes
+README.md
+requirements.txt
+```
+
+---
+class: middle
+
+```dockerfile
+FROM debian:jessie
+MAINTAINER Olivier Grisel <olivier.grisel@ensta.org>
+
+RUN apt-get update -yqq &amp;&amp; apt-get install -yqq wget bzip2 git \
+  &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Configure environment
+ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
+
+RUN mkdir /work
+WORKDIR /work
+
+# Install Python 3 from miniconda
+RUN wget -O miniconda.sh \
+  https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+  &amp;&amp; bash miniconda.sh -b -p /work/miniconda \
+  &amp;&amp; rm miniconda.sh
+
+ENV PATH="/work/bin:/work/miniconda/bin:$PATH"
+
+RUN conda install -y \
+  pip \
+  notebook \
+  pandas \
+  scikit-learn \
+  &amp;&amp; conda clean -tipsy
+
+# Install the master branch of distributed and dask
+COPY requirements.txt .
+RUN pip install -r requirements.txt &amp;&amp; rm -rf ~/.cache/pip/
+
+# Add the example notebooks
+COPY examples .
+```
+
+---
+class: center, middle, bgheader
 background-image: url(images/orchestra.jpeg)
 background-size: cover
 
@@ -438,6 +526,8 @@ class: middle
 
 - "Supermicro Storage" by Robert: https://flic.kr/p/e17qr3
 
+- "smiiile!" by mooglet: https://flic.kr/p/am9zQe
+
 - "Docker Architecture" https://docs.docker.com/engine/understanding-docker/
 
 - "Container terminal" by Martin Abegglen: https://flic.kr/p/b7rw5D
@@ -451,7 +541,8 @@ class: middle
     <script type="text/javascript">
       var slideshow = remark.create({
         highlightStyle: 'github',
-        highlightSpans: true
+        highlightSpans: true,
+        highlightLines: true
       });
     </script>
   </body>
