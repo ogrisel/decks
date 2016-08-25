@@ -456,7 +456,8 @@ COPY examples .
 ```
 
 ---
-class: middle, medium
+class: medium
+# docker build
 
 ```
 $ docker build -t ogrisel/distributed .
@@ -473,7 +474,8 @@ Step 3 : RUN apt-get update -yqq  &amp;&amp; apt-get install -yqq wget [...]
 ```
 
 ---
-class: middle, medium
+class: medium
+# docker build &amp; docker push
 
 ```
 $ docker build -t ogrisel/distributed .
@@ -531,6 +533,82 @@ background-size: cover
 ]
 
 ---
+class: medium
+# Kubernetes and GKE
+
+```
+$ gcloud config set compute/zone europe-west1-d
+$ gcloud container clusters create cluster-1 \
+    --num-nodes 3 \
+    --machine-type n1-highcpu-32 \
+    --scopes bigquery,storage-rw \
+    --wait
+Creating cluster cluster-1...done.
+Created [https://container.googleapis.com/v1/.../cluster-1].
+kubeconfig entry generated for cluster-1.
+NAME       ZONE            ... MACHINE_TYPE   NUM_NODES  STATUS
+cluster-1  europe-west1-d  ... n1-highcpu-32  3          RUNNING
+```
+--
+```
+$ gcloud container clusters get-credentials cluster-1
+Fetching cluster endpoint and auth data.
+kubeconfig entry generated for cluster-1.
+```
+
+---
+class: medium
+# Kubernetes and GKE
+
+```
+$ git clone https://github.com/ogrisel/docker-distributed
+$ cd docker-distributed
+$ kubectl create -f kubernetes/
+service "dscheduler" created
+service "dscheduler-status" created
+replicationcontroller "dscheduler" created
+replicationcontroller "dworker" created
+service "jupyter-notebook" created
+replicationcontroller "jupyter-notebook" created
+```
+--
+```
+$ kubectl get services
+NAME                CLUSTER-IP       EXTERNAL-IP      PORT(S)
+dscheduler          10.115.249.189   <none>           8786/TCP,9786/TCP
+dscheduler-status   10.115.244.201   130.211.50.206   8787/TCP
+jupyter-notebook    10.115.254.255   146.148.114.90   80/TCP
+kubernetes          10.115.240.1     <none>           443/TCP
+```
+
+---
+class: medium
+# distributed-worker.yml
+
+```yaml
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: dworker-controller
+spec:
+  replicas: 3
+  selector:
+    name: dworker
+  template:
+    metadata:
+      labels:
+        name: dworker
+    spec:
+      containers:
+        - name: dworker
+          image: ogrisel/distributed:latest
+          args: ["dworker" "dscheduler:8786"]
+```
+
+
+
+
+---
 # Conclusion
 
 .middlebelowheader[
@@ -539,7 +617,7 @@ background-size: cover
 
 ### Containers make cluster setup reproducible and cloud agnostic
 
-### Docker swarm vs Kubernetes vs Mesos: learn any one and understand others
+### Docker Swarm vs Kubernetes vs Mesos: learn any one and understand others
 
 ]
 
