@@ -115,3 +115,7 @@ td, th {
   text-align: center;
   width: 750px;
 }
+
+a:visited {
+  color: blue;
+}
