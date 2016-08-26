@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="slides.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# manylinux1!
+
+Olivier Grisel - EuroSciPy 2016
+
+---
+# You might have noticed
+
+```
+(venv) $ pip install numpy scipy scikit-learn
+Collecting numpy
+  Using cached numpy-1.11.1-cp35-cp35m-manylinux1_x86_64.whl
+Collecting scipy
+  Using cached scipy-0.18.0-cp35-cp35m-manylinux1_x86_64.whl
+Collecting scikit-learn
+  Downloading scikit_learn-0.17.1-cp35-cp35m-manylinux1_x86_64.whl (17.5MB)
+    15% |████▉                           | 2.7MB 629kB/s eta 0:00:24
+```
+--
+```
+(venv) $ ipython
+>>> import numpy as np
+>>> a = np.random.randn(2000, 2000)
+>>> out = np.empty_likes(a)
+>>> %timeit np.dot(a, a, out=out)
+1 loop, best of 3: 194 ms per loop
+>>> (2 * 2000 ** 3 + 3 * 2000 ** 2) / 0.194 / 1e9  # GFLOPS for DGEMM
+82.5360824742268
+```
+--
+```
+(venv) $ ls ~/.virtualenvs/venv/lib/python3.5/site-packages/numpy/.libs/
+libgfortran-ed201abd.so.3.0.0
+libopenblasp-r0-39a31c03.2.18.so
+```
+
+---
+class: singleimg
+# PEP 513
+
+.center[
+![PEP 513 on Python.org](images/pep-513.png)
+]
+
+- Supported by PyPI and pip 8.1 and later
+- Thank you Donald Stufft! 
+
+---
+class: singleimg
+# Example projects
+
+.center[
+  ![numpy wheels on pypi](images/numpy-wheels.png)
+]
+
+- numpy, scipy, pandas, scikit-learn...
+
+- pyzmq, pyqt5, lxml...
+
+---
+# Build manylinux1 wheels manually
+
+### manylinux1 docker images and auditwheel:
+
+- https://github.com/pypa/manylinux
+
+### Mailing list to ask for help:
+
+- https://mail.python.org/mailman/listinfo/wheel-builders
+
+---
+class: singleimg
+# Travis-CI build service
+
+.center[
+  ![scikit-learn-wheels travis](images/scikit-learn-wheels.png)
+]
+
+- https://github.com/matthew-brett/multibuild
+
+- Supports Linux and OSX (64 bit and 32 bit)
+
+
+    </textarea>
+    <script src="../remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true
+      });
+    </script>
+  </body>
+</html>
