@@ -611,7 +611,7 @@ spec:
       containers:
         - name: dworker
           image: ogrisel/distributed:latest
-          args: ["dworker" "dscheduler:8786"]
+          args: ["dask-worker", "dscheduler:8786"]
 ```
 
 
