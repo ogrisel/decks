@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="slides.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Cloud-based Cluster Computing for PyData
+
+Olivier Grisel - SUCCES, Paris 2016
+
+.affiliations[
+  ![Inria](images/inria-logo.png)
+  ![scikit-learn](images/scikit-learn-logo.png)
+]
+
+---
+# Outline
+
+.middlebelowheader[
+
+### Demo of distributed ML in Python
+
+### Some PyData tools for interactive distributed computing
+
+### Cluster orchestration with Docker and Kubernetes
+
+]
+
+---
+class: center, middle, bgheader
+background-image: url(images/racks.jpeg)
+background-size: cover
+
+# Distributed ML with joblib and dask/distributed
+
+---
+class: singleimg
+# A cluster for sklearn
+
+.middlebelowheader[
+
+![Cluster diagram](images/gridsearch-user-case.png)
+
+]
+
+---
+# Demo
+
+.middlebelowheader[
+
+https://github.com/ogrisel/docker-distributed
+
+Have a look a the notebooks in the `examples` folder.
+
+.center[
+
+<iframe width="420" height="315"
+  src="https://www.youtube.com/embed/6mKNSEQ0FIQ"
+  frameborder="0" allowfullscreen></iframe>
+
+https://youtu.be/6mKNSEQ0FIQ
+
+]
+]
+
+---
+class: singleimg
+# Jupyter notebook
+
+.middlebelowheader[
+
+![Jupyter notebook](images/jupyterpreview.png)
+
+]
+
+---
+class: singleimg
+# JupyterLab
+
+.middlebelowheader[
+
+![JupyterLab](images/jupyterlab-overview.png)
+
+]
+
+---
+# dask &amp; distributed
+
+.middlebelowheader[
+
+- Collection API similar to NumPy array and Pandas DataFrame objects
+
+- Custom workloads via tasks scheduling API
+
+- Pure python, easily integrated in PyData environment
+
+- Low overhead (scheduling latency: ~1ms per tasks)
+
+- Scales up: runs on clusters with 1000s of cores
+
+- Scales down: runs on a laptop in a single process
+
+]
+
+---
+class: singleimg
+# dask architecture
+
+.middlebelowheader[
+
+![dask architecture](images/collections-schedulers.png)
+
+]
+
+---
+class: singleimg
+# dask collection-oriented API
+
+.middlebelowheader[
+
+![dask collections](images/dask-collections.png)
+
+]
+
+---
+class: singleimg
+# dask task-oriented API
+
+.middlebelowheader[
+
+![dask tasks](images/dask-tasks.png)
+
+]
+
+
+
+---
+class: center, middle, bgheader
+background-image: url(images/container_terminal.jpeg)
+background-size: cover
+
+# Container-based orchestraion with docker &amp; kubernetes
+
+---
+# Docker is:
+
+.middlebelowheader[
+
+### Not a virtual machine system
+
+### Linux container + Layered file-system + Abstract network
+
+### User-friendly command line interface
+
+### It can run in a VM (or not)
+
+]
+
+---
+class: singleimg
+# VM vs Container
+
+.middlebelowheader[
+
+![VM-based hosting vs Container-based hosting](images/container-vs-vm.png)
+
+]
+
+---
+class: singleimg
+# Docker architecture
+
+.middlebelowheader[
+
+![Architecture of Docker](images/docker-architecture.svg)
+
+]
+
+---
+class: center, middle, bgheader
+background-image: url(images/lego-painter.jpeg)
+background-size: cover
+
+# Building an image
+
+---
+class: middle, medium
+
+```
+$ git clone https://github.com/ogrisel/docker-distributed
+$ ls docker-distributed
+docker-compose.yml
+*Dockerfile
+examples
+kubernetes
+README.md
+*requirements.txt
+```
+
+---
+class: middle, medium
+
+```
+$ git clone https://github.com/ogrisel/docker-distributed
+$ ls docker-distributed
+docker-compose.yml
+Dockerfile
+*examples
+kubernetes
+README.md
+requirements.txt
+```
+
+---
+class: middle, medium
+
+```
+$ git clone https://github.com/ogrisel/docker-distributed
+$ ls docker-distributed
+*docker-compose.yml
+Dockerfile
+examples
+*kubernetes
+README.md
+requirements.txt
+```
+
+---
+class: middle
+
+```dockerfile
+FROM debian:jessie
+MAINTAINER Olivier Grisel <olivier.grisel@ensta.org>
+
+RUN apt-get update -yqq &amp;&amp; apt-get install -yqq wget bzip2 git \
+  &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Configure environment
+ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
+
+RUN mkdir /work
+WORKDIR /work
+
+# Install Python 3 from miniconda
+RUN wget -O miniconda.sh \
+  https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
+  &amp;&amp; bash miniconda.sh -b -p /work/miniconda \
+  &amp;&amp; rm miniconda.sh
+
+ENV PATH="/work/bin:/work/miniconda/bin:$PATH"
+
+RUN conda install -y \
+  pip \
+  notebook \
+  pandas \
+  scikit-learn \
+  &amp;&amp; conda clean -tipsy
+
+# Install the master branch of distributed and dask
+COPY requirements.txt .
+RUN pip install -r requirements.txt &amp;&amp; rm -rf ~/.cache/pip/
+
+# Add the example notebooks
+COPY examples .
+```
+
+---
+class: medium
+# docker build
+
+```
+$ docker build -t ogrisel/distributed .
+Sending build context to Docker daemon 178.2 kB
+Step 1 : FROM debian:jessie
+ ---> 1b01529cc499
+Step 2 : MAINTAINER Olivier Grisel <olivier.grisel@ensta.org>
+ ---> Using cache
+ ---> 37887ee139f1
+Step 3 : RUN apt-get update -yqq  &amp;&amp; apt-get install -yqq wget [...]
+ ---> Using cache
+ ---> 3c2b8caccb80
+[...]
+```
+
+---
+class: medium
+# docker build &amp; docker push
+
+```
+$ docker build -t ogrisel/distributed .
+Sending build context to Docker daemon 178.2 kB
+Step 1 : FROM debian:jessie
+ ---> 1b01529cc499
+Step 2 : MAINTAINER Olivier Grisel <olivier.grisel@ensta.org>
+ ---> Using cache
+ ---> 37887ee139f1
+Step 3 : RUN apt-get update -yqq  &amp;&amp; apt-get install -yqq wget [...]
+ ---> Using cache
+ ---> 3c2b8caccb80
+[...]
+$ docker run --rm ogrisel/distributed \
+    python -c "import sklearn; print(sklearn.__version__)"
+0.18.1
+$ docker push ogrisel/distributed
+```
+
+---
+class: center, middle, bgheader
+background-image: url(images/orchestra.jpeg)
+background-size: cover
+
+# Orchestration
+
+---
+# Orchestration tools
+
+.middlebelowheader[
+<div style="display: flex">
+
+<div style="width: 50%; padding: 1em">
+<p><img height="50px" src="images/docker-logo.png" /></p>
+<p>
+<strong>Docker Swarm</strong> and Docker&nbsp;Compose
+</p>
+</div>
+
+<div style="width: 50%; padding: 1em">
+<p><img height="50px" src="images/kubernetes-logo.png" /></p>
+<p>
+<strong>Kubernetes</strong>
+</p>
+</div>
+
+</div>
+
+<div style="margin: 1em auto; width: 400px">
+<p><img height="50px" src="images/dcos-logo.png" /></p>
+<p>
+<strong>DC/OS</strong> and Mesos
+</p>
+</div>
+]
+
+---
+class: medium
+# Kubernetes and GKE
+
+```
+$ gcloud config set compute/zone europe-west1-d
+$ gcloud container clusters create cluster-1 \
+    --num-nodes 3 \
+    --machine-type n1-highcpu-32 \
+    --scopes bigquery,storage-rw \
+    --preemptible \
+    --no-async
+Creating cluster cluster-1...done.
+Created [https://container.googleapis.com/v1/.../cluster-1].
+kubeconfig entry generated for cluster-1.
+NAME       ZONE            ... MACHINE_TYPE   NUM_NODES  STATUS
+cluster-1  europe-west1-d  ... n1-highcpu-32  3          RUNNING
+```
+--
+```
+$ gcloud container clusters get-credentials cluster-1
+Fetching cluster endpoint and auth data.
+kubeconfig entry generated for cluster-1.
+```
+
+---
+class: medium
+# Kubernetes and GKE
+
+```
+$ git clone https://github.com/ogrisel/docker-distributed
+$ cd docker-distributed
+$ kubectl create -f kubernetes/
+service "dscheduler" created
+service "dscheduler-status" created
+replicationcontroller "dscheduler" created
+replicationcontroller "dworker" created
+service "jupyter-notebook" created
+replicationcontroller "jupyter-notebook" created
+```
+--
+```
+$ kubectl get services
+NAME                CLUSTER-IP       EXTERNAL-IP      PORT(S)
+dscheduler          10.115.249.189   <none>           8786/TCP,9786/TCP
+dscheduler-status   10.115.244.201   130.211.50.206   8787/TCP
+jupyter-notebook    10.115.254.255   146.148.114.90   80/TCP
+kubernetes          10.115.240.1     <none>           443/TCP
+```
+
+---
+class: medium
+# distributed-worker.yml
+
+```yaml
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: dworker-controller
+spec:
+  replicas: 3
+  selector:
+    name: dworker
+  template:
+    metadata:
+      labels:
+        name: dworker
+    spec:
+      containers:
+        - name: dworker
+          image: ogrisel/distributed:latest
+          args: ["dask-worker", "dscheduler:8786"]
+```
+
+
+
+
+---
+# Conclusion
+
+.middlebelowheader[
+
+### Jupyter + Dask a nice interactive distributed environement for PyData
+
+### Containers make cluster setup reproducible and cloud agnostic
+
+### Docker Swarm vs Kubernetes vs Mesos: learn any one and understand others
+
+]
+
+---
+# Thank you
+
+.middlebelowheader[
+<div style="display: flex">
+
+<div style="width: 50%; padding: 1em">
+<p><img height="35px" src="images/carina-logo.svg" /></p>
+<p>
+<strong>Rackspace</strong> for free cloud resources to support SciPy
+projects and for helping the Python community in general.
+</p>
+</div>
+
+<div style="width: 50%; padding: 1em">
+<p><img height="35px" src="images/gcp-logo.png" /></p>
+<p>
+<strong>Google</strong> for GCP credits to test distributed Python with
+Kubernetes.
+</p>
+</div>
+
+</div>
+
+<div style="margin: 1em auto; width: 400px">
+<p><img height="50px" src="images/inria-logo.png" /></p>
+<p>
+<strong>Inria</strong> for supporting my work on scikit-learn and related
+projects.
+</p>
+</div>
+]
+
+---
+class: middle
+
+# Thank you!
+
+## Sample configuration:
+
+- [github.com/ogrisel/docker-distributed](
+    http://github.com/ogrisel/docker-distributed)
+
+## Those slides:
+
+- [ogrisel.github.io/decks/2016_succes_paris_pydata_kubernetes](
+    http://ogrisel.github.io/decks/2016_succes_paris_pydata_kubernetes)
+
+---
+class: small
+
+# Image credits
+
+- "Supermicro Storage" by Robert: https://flic.kr/p/e17qr3
+
+- "smiiile!" by mooglet: https://flic.kr/p/am9zQe
+
+- "Docker Architecture" https://docs.docker.com/engine/understanding-docker/
+
+- "Container terminal" by Martin Abegglen: https://flic.kr/p/b7rw5D
+
+- "Symphonic Orchestra and Choir of the WYD" by HazteOir.org:
+  https://flic.kr/p/c5B6Cd
+
+    </textarea>
+    <script src="../remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true
+      });
+    </script>
+  </body>
+</html>
