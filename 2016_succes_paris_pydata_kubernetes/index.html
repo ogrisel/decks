@@ -130,6 +130,32 @@ class: singleimg
 
 ---
 class: singleimg
+# dask bags &amp; compute graphs
+
+```
+>>> import dask.bag as db
+>>> b = db.from_s3('githubarchive-data', '2015-01-01-*.json.gz')
+          .map(json.loads)
+          .map(lambda d: d['type'] == 'PushEvent')
+          .count()
+```
+
+![dask embarrasing](images/dask-bag-embarassing.png)
+
+---
+class: singleimg
+# dask arrays &amp; compute graphs
+
+```
+>>> import dask.array as da
+>>> x = da.ones((5000, 1000), chunks=(1000, 1000))
+>>> u, s, v = da.linalg.svd(x)
+```
+
+![dask svd](images/dask-svd.png)
+
+---
+class: singleimg
 # dask task-oriented API
 
 .middlebelowheader[
@@ -137,8 +163,6 @@ class: singleimg
 ![dask tasks](images/dask-tasks.png)
 
 ]
-
-
 
 ---
 class: center, middle, bgheader
