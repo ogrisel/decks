@@ -238,17 +238,46 @@ class: middle, center
 ---
 class: center, middle
 
-| User  | Item  |
-|-------|-------|
-| 19483 | 45243 |
-| 95727 | 39572 |
-| 76244 | 83773 |
-| 02584 | 94723 |
-| 02584 | 45243 |
-| 49138 | 20481 |
-| 03957 | 25892 |
-| 19483 | 25892 |
-| ...   | ...   |
+| User      | Item  |
+|-----------|-------|
+| 19483     | 45243 |
+| 95727     | 39572 |
+| 76244     | 83773 |
+| 2584      | 94723 |
+| 2584      | 45243 |
+| 2584      | 39572 |
+| 49138     | 20481 |
+| 03957     | 25892 |
+| 19483     | 25892 |
+| ...       | ...   |
+
+???
+
+Core of recsys training data is a set of pairs of large integers.
+
+Often with a timestamp, user and item metadata and maybe a target
+rating.
+
+---
+class: center, middle
+
+| User      | Item  |
+|-----------|-------|
+| 19483     | 45243 |
+| 95727     | 39572 |
+| 76244     | 83773 |
+| **2584**  | 94723 |
+| **2584**  | 45243 |
+| **2584**  | 39572 |
+| 49138     | 20481 |
+| 03957     | 25892 |
+| 19483     | 25892 |
+| ...       | ...   |
+
+???
+
+Ideally the same integers appears several times.
+
 
 ---
 # Symbolic variables
@@ -271,17 +300,17 @@ Tags, movie genres, director name, visited URLs,
 skills on a resume, product categories...
 
 ---
+class: middle, center
 
-.center[
-### Symbol $s$ in vocabulary $V$
-]
+## Symbol $s$ in vocabulary $V$
+
 
 ---
 # One-hot representation
 
 $$onehot(\text{'salad'}) = [0, 0, 1, ..., 0] \in \\{0, 1\\}^{|V|}$$
 <br/><br/>
-.center[
+.diagram[
 <img src="images/word_onehot.svg" style="width: 400px;" />
 ]
 
@@ -293,7 +322,6 @@ $$onehot(\text{'salad'}) = [0, 0, 1, ..., 0] \in \\{0, 1\\}^{|V|}$$
 - Each axis has a meaning
 - Symbols are equidistant from each other
 
-.center[euclidean distance = $\sqrt{2}$]
 
 ---
 # Embedding
@@ -303,9 +331,13 @@ $$embedding(\text{'salad'}) = [3.28, -0.45, ... 7.11] \in \mathbb{R}^d$$
 --
 
 - Continuous and dense
-- Can represent a huge vocabulary in low dimension, typically: $d \in \\{16, 32, ..., 4096\\}$
 - Axis have no meaning _a priori_
 - Embedding metric can capture semantic distance
+
+???
+
+Can represent a huge vocabulary in low dimension, typically: $d \in
+\\{16, 32, ..., 4096\\}$
 
 --
 <br/><br/>
@@ -325,9 +357,27 @@ Embedding(output_dim=d, input_dim=n, input_length=1)
 
 --
 
-- Equivalent to one-hot encoding multiplied by a weight matrix $\mathbf{W} \in \mathbb{R}^{n \times d}$:
+- Equivalent to one-hot encoding multiplied by a weight matrix
+  $\mathbf{W} \in \mathbb{R}^{n \times d}$:
 
-$$embedding(s) = onehot(s) . \mathbf{W} = \mathbf{W}_s $$
+$$embedding(s) = onehot(s) . \mathbf{W} $$
+
+- $W$ initialized randomly
+
+- Part of the model parameters
+
+---
+# Embed all the things!
+
+### Discrete variables
+
+--
+
+### Image with CNN
+
+--
+
+### Sequence of tokens with RNN
 
 ---
 # Distance and similarity in Embedding space
@@ -345,8 +395,6 @@ $d(x,y) = || x - y ||_2$
 ### Cosine similarity
 
 $cosine(x,y) = \frac{x \cdot y}{||x|| \cdot ||y||}$
-
-
 
 ]
 
@@ -371,35 +419,36 @@ class: center, middle
 ---
 # RecSys with Explicit Feedback
 
-.center[
+.diagram[
 <img src="images/rec_archi_1.svg" style="width: 680px;" />
 ]
 
 ---
 # Deep RecSys Architecture
 
-.center[
+.diagram[
 <img src="images/rec_archi_2.svg" style="width: 680px;" />
 ]
 
 ---
 # Deep RecSys with metadata
 
-.center[
+.diagram[
 <img src="images/rec_archi_3.svg" style="width: 680px;" />
 ]
 
 ---
 # Implicit Feedback: Triplet loss
 
-.center[
-<img src="images/rec_archi_implicit_2.svg" style="width: 580px;" />
+.diagram[
+<img src="images/rec_archi_implicit_2.svg" style="width: 560px;" />
 ]
 
 ---
 # Deep Triplet Networks
-.center[
-<img src="images/rec_archi_implicit_1.svg" style="width: 580px;" />
+
+.diagram[
+<img src="images/rec_archi_implicit_1.svg" style="width: 560px;" />
 ]
 
 ---

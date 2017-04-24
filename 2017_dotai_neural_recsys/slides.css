@@ -136,3 +136,13 @@ a:visited {
   bottom: 3em;
   margin: 0em 2em;
 }
+
+th {
+  background-color: #222;
+}
+
+.diagram {
+  text-align: center;
+  padding: 1em;
+  background-color: white;
+}
