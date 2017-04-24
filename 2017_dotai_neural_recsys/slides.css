@@ -42,7 +42,8 @@ font-size: 120%;
 }
 
 .singleimg img {
-  max-width: 98%;
+  max-width: 100%;
+  border: 1px solid white;
 }
 table {
   margin: 0 auto 0.8em;
@@ -87,8 +88,7 @@ td, th {
 }
 
 .affiliations img {
-  height: 44px;
-  margin: 2em;
+  height: 120px;
 }
 
 .hidden {
