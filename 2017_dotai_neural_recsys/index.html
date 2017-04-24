@@ -245,9 +245,9 @@ class: center, middle
 | 76244     | 83773 |
 | 2584      | 94723 |
 | 2584      | 45243 |
+| 23957     | 25892 |
 | 2584      | 39572 |
 | 49138     | 20481 |
-| 03957     | 25892 |
 | 19483     | 25892 |
 | ...       | ...   |
 
@@ -268,9 +268,9 @@ class: center, middle
 | 76244     | 83773 |
 | **2584**  | 94723 |
 | **2584**  | 45243 |
+| 23957     | 25892 |
 | **2584**  | 39572 |
 | 49138     | 20481 |
-| 03957     | 25892 |
 | 19483     | 25892 |
 | ...       | ...   |
 
@@ -345,41 +345,6 @@ Can represent a huge vocabulary in low dimension, typically: $d \in
 ### Neural Networks compute transformations on continuous vectors
 
 ---
-# Implementation with Keras
-
-Size of vocabulary $n = |V|$, size of embedding $d$
-
-```py
-# input: batch of integers
-Embedding(output_dim=d, input_dim=n, input_length=1)
-# output: batch of float vectors
-```
-
---
-
-- Equivalent to one-hot encoding multiplied by a weight matrix
-  $\mathbf{W} \in \mathbb{R}^{n \times d}$:
-
-$$embedding(s) = onehot(s) . \mathbf{W} $$
-
-- $W$ initialized randomly
-
-- Part of the model parameters
-
----
-# Embed all the things!
-
-### Discrete variables
-
---
-
-### Image with CNN
-
---
-
-### Sequence of tokens with RNN
-
----
 # Distance and similarity in Embedding space
 
 .left-column[
@@ -410,6 +375,29 @@ Cosine:
 - Expected cosine similarity of random pairs of vectors is $0$
 
 Alternatively: just the dot product
+
+
+---
+# Implementation with Keras
+
+Size of vocabulary $n = |V|$, size of embedding $d$
+
+```py
+# input: batch of integers
+Embedding(output_dim=d, input_dim=n, input_length=1)
+# output: batch of float vectors
+```
+
+--
+
+- Equivalent to one-hot encoding multiplied by a weight matrix
+  $\mathbf{W} \in \mathbb{R}^{n \times d}$:
+
+$$embedding(s) = onehot(s) . \mathbf{W} $$
+
+- $W$ initialized randomly
+
+- Part of the model parameters
 
 ---
 class: center, middle
@@ -451,29 +439,12 @@ class: center, middle
 <img src="images/rec_archi_implicit_1.svg" style="width: 560px;" />
 ]
 
----
-# Training a Triplet Model
-
-- Gather a set of positive pairs user $i$ and item $j$
-
-- While model has not converged:
-
---
-    - Shuffle the set of pairs $(i, j)$
---
-    - For each $(i, j)$:
-      - Sample item $k$ uniformly at random
---
-      - Call item $k$ a negative item for user $i$
---
-      - Train model on triplet $(i, j, k)$
 
 ???
 
-This is called uniform negative sampling.
+Pick pair of positive feedback (user i, item j)
 
-Note that new negative samples are collected for each pass
-(epoch) over the positive feedback dataset.
+Sample "negative" item k uniformly at random.
 
 It also possible to use the current state of the model to
 "mine" hard negatives.
@@ -499,6 +470,51 @@ Alternative way to deal with Implicit Feedback:
   ordering information
 
 ---
+# Embed all the things!
+
+### Discrete variables with linear embeddings
+
+--
+
+### Images and sounds with ConvNets
+
+--
+
+### Sequences of discrete tokens with RNNs
+
+--
+
+### Molecules with Graph ConvNets
+
+--
+
+...
+
+???
+
+Embed interaction data and content-based metadata naturally in shared
+model:
+
+Mix and match loss functions: predict clicks in search results, next
+song after current song, related artist clicks...
+
+Use pre-trained models with frozen weights on some parts: ImageNet CNN,
+word embeddings...
+
+Or fine-tune everything if very large amount user interaction data.
+
+---
+# Flexibility of Neural Networks
+
+## Heterogeneous input data
+
+## Custom loss design
+
+## Other tools
+
+Dropout regularization, Adam optimizer, open source frameworks
+
+---
 class: middle, center
 
 # Ethical Considerations of Recommender Systems
@@ -508,20 +524,37 @@ class: middle, center
 
 ### Amplification of existing discriminatory and unfair behaviors / bias
 
-- Example: gender bias in ad clicks (fashion / jobs)
-- Using the firstname as a predictive feature
-
 --
 
 ### Amplification of the filter bubble and opinion polarization
+
+--
+
+### Lack of transparency
+
+???
+
+Unfairness
+
+- Example: gender bias in ad clicks
+- Using the firstname as a predictive feature
+
+Polarization
 
 - People tend to unfollow people they don't agree with
 - Ranking / filtering systems can further amplify this issue
 - Optimizing for short-term clicks can promote clickbait contents
 
 ---
-# Call to action
+class: middle, center
 
+# Thank you for your attention!
+
+Notebooks with keras code linked as pinned tweet:
+
+@ogrisel
+
+---
 ### Designing Ethical Recommender Systems
 
 - Wise modeling choices (e.g. use of "firstname" as feature)
@@ -553,15 +586,6 @@ https://arxiv.org/abs/1511.05897
 
 - http://www.datatransparencylab.org/
 - TransAlgo initiative in France
-
----
-class: middle, center
-
-# Thank you for your attention!
-
-Notebooks with keras code linked as pinned tweet:
-
-@ogrisel
 
 
     </textarea>

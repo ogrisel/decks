@@ -114,11 +114,11 @@ td, th {
   width: 750px;
 }
 
-a:visited {
-  color: blue;
+a, a:visited {
+  color: #ddf;
 }
 
-.remark-slide-content {
+.remark-slide-content  {
   background-color: #011;
   color: white;
 }
