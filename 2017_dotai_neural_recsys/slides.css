@@ -45,6 +45,20 @@ font-size: 120%;
   max-width: 100%;
   border: 1px solid white;
 }
+
+.singleimgnoborder {
+  width: 800px;
+}
+
+.singleimgnoborder {
+  text-align: center;
+}
+
+.singleimgnoborder img {
+  max-width: 100%;
+}
+
+
 table {
   margin: 0 auto 0.8em;
   border-collapse: collapse;

@@ -23,19 +23,6 @@ Olivier Grisel
 ]
 
 ---
-# Outline
-
-### Recommender Systems
-
---
-
-### Embeddings
-
---
-
-### Architectures for Neural RecSys
-
----
 class: middle, center
 
 # Recommender Systems
@@ -46,19 +33,24 @@ class: middle, center, singleimg
 
 ![Amazon books](images/amazon_book_recos.png)
 
-
 ???
 
-Product reco and Recommendations
-
-Goal: Direction maximize sales / upsales
-
+Tradional product recommendation
 
 ---
 class: middle, center, singleimg
 
-![Spotify](images/spotify_related_artists_recos.png)
+![Amazon books](images/amazon_book_recos_inputs.png)
 
+---
+class: middle, center, singleimg
+
+![Amazon books](images/amazon_book_recos_full.png)
+
+
+???
+
+Goal: Direction maximize sales / upsales
 
 ---
 class: middle, center, singleimg
@@ -169,28 +161,32 @@ CF better for popular items and very active users
 Hybrid: CF + metadata to mitigate the cold-start problem
 
 ---
-# Explicit vs Implicit Feedback
+# Explicit Feedback
 
-**Explicit**
-
-- Examples: review stars and votes
-
-- Regression or ranking metrics
-
---
-
-**Implicit**
-
-- Examples: page views, plays, comments...
-
-- Ranking metrics
+.singleimgnoborder.middlebelowheader[
+<img src="images/feedback_stars.svg" width="100%" />
+]
 
 ???
 
-Explicit: positive and negative feedback
+Explicit: positive and negative feedback, continuous prediction
 
-Implicit: positive feedback only
+Examples: review stars and votes
 
+Regression or ranking metrics
+
+---
+# Implicit Feedback
+
+.singleimgnoborder.middlebelowheader[
+<img src="images/feedback_plays.svg" width="400px" />
+]
+
+???
+
+Implicit: positive feedback only: views, plays, comments...
+
+Ranking metrics or CTR
 
 Implicit feedback much more **abundant** than explicit feedback
 
@@ -258,26 +254,7 @@ Core of recsys training data is a set of pairs of large integers.
 Often with a timestamp, user and item metadata and maybe a target
 rating.
 
----
-class: center, middle
-
-| User      | Item  |
-|-----------|-------|
-| 19483     | 45243 |
-| 95727     | 39572 |
-| 76244     | 83773 |
-| **2584**  | 94723 |
-| **2584**  | 45243 |
-| 23957     | 25892 |
-| **2584**  | 39572 |
-| 49138     | 20481 |
-| 19483     | 25892 |
-| ...       | ...   |
-
-???
-
-Ideally the same integers appears several times.
-
+The same integers should appear several times.
 
 ---
 # Symbolic variables
@@ -339,13 +316,8 @@ $$embedding(\text{'salad'}) = [3.28, -0.45, ... 7.11] \in \mathbb{R}^d$$
 Can represent a huge vocabulary in low dimension, typically: $d \in
 \\{16, 32, ..., 4096\\}$
 
+
 --
-<br/><br/>
-
-### Neural Networks compute transformations on continuous vectors
-
----
-# Distance and similarity in Embedding space
 
 .left-column[
 ### Euclidean distance
@@ -378,19 +350,9 @@ Alternatively: just the dot product
 
 
 ---
-# Implementation with Keras
+# Embedding as a Linear Layer
 
-Size of vocabulary $n = |V|$, size of embedding $d$
-
-```py
-# input: batch of integers
-Embedding(output_dim=d, input_dim=n, input_length=1)
-# output: batch of float vectors
-```
-
---
-
-- Equivalent to one-hot encoding multiplied by a weight matrix
+Equivalent to one-hot encoding multiplied by a weight matrix
   $\mathbf{W} \in \mathbb{R}^{n \times d}$:
 
 $$embedding(s) = onehot(s) . \mathbf{W} $$
@@ -398,6 +360,16 @@ $$embedding(s) = onehot(s) . \mathbf{W} $$
 - $W$ initialized randomly
 
 - Part of the model parameters
+
+--
+
+In Keras:
+
+```py
+# input: batch of integers
+Embedding(output_dim=d, input_dim=n, input_length=1)
+# output: batch of float vectors
+```
 
 ---
 class: center, middle
@@ -503,14 +475,9 @@ word embeddings...
 
 Or fine-tune everything if very large amount user interaction data.
 
----
-# Flexibility of Neural Networks
+???
 
-## Heterogeneous input data
-
-## Custom loss design
-
-## Other tools
+Other DL tools:
 
 Dropout regularization, Adam optimizer, open source frameworks
 
@@ -545,37 +512,14 @@ Polarization
 - Ranking / filtering systems can further amplify this issue
 - Optimizing for short-term clicks can promote clickbait contents
 
----
-class: middle, center
-
-# Thank you for your attention!
-
-Notebooks with keras code linked as pinned tweet:
-
-@ogrisel
-
----
-### Designing Ethical Recommender Systems
+???
 
 - Wise modeling choices (e.g. use of "firstname" as feature)
-- Conduct internal audits to detect fairness issues
+- How to allow users to assess fairness by themselves?
+- How to allow for independent audits while respecting the privacy of
+  users?
 - Learning representations that actively enforce fairness?
 
---
-
-### Transparency
-
-- Educate decision makers and the general public
-- How to allow users to assess fairness by themselves?
-- How to allow for independent audits while respecting the privacy of users?
-
---
-
-.center[
-### Active Area of Research
-]
-
-???
 # Fairness
 
 Censoring Representations with an Adversary
@@ -586,6 +530,16 @@ https://arxiv.org/abs/1511.05897
 
 - http://www.datatransparencylab.org/
 - TransAlgo initiative in France
+
+---
+class: middle, center
+
+# Thank you for your attention!
+
+## Notebooks with keras code linked as pinned tweet:
+
+## @ogrisel
+
 
 
     </textarea>
