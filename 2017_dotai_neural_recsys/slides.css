@@ -7,11 +7,16 @@ body {
 }
 
 .remark-slide-container {
-  background-color: #222;
+  background-color: #011;
 }
 
 .remark-slide-scaler {
-  box-shadow: 0 0 30px #333;
+  box-shadow: 0 0;
+}
+
+.remark-slide-content  {
+  background-color: #011;
+  color: white;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -45,8 +50,9 @@ font-size: 120%;
   line-height: 140%;
 }
 
-.singleimg .middlebelowheader {
+.singleimg {
   text-align: center;
+  width: 70sss0px;
 }
 
 .singleimg img {
@@ -55,7 +61,7 @@ font-size: 120%;
 }
 
 .singleimgnoborder {
-  width: 800px;
+  width: 700px;
 }
 
 .singleimgnoborder {
@@ -140,10 +146,6 @@ a, a:visited {
   color: #ddf;
 }
 
-.remark-slide-content  {
-  background-color: #011;
-  color: white;
-}
 .left-column {
   width: 50%;
   float: left;
