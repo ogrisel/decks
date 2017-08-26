@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Loky</title>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="../remark/slides.css">
+<link rel="stylesheet" href="../mermaid/mermaid.forest.min.css">
+<link rel="stylesheet" href="../font-awesome-4.7.0/css/font-awesome.min.css">
+
+</head>
+  <body>
+    <textarea id="source">
+class: center, middle
+
+# Robustifying `concurrent.futures`
+
+.normal[
+</br>
+**Thomas Moreau** - Olivier Grisel  
+</br>
+]
+
+.affiliations[
+  ![CMLA](images/logo_cmla.png)
+  ![ENS Paris-Saclay](images/logo_ens.png)
+  ![Heuritech](images/logo heuritech v2.png)
+]
+
+
+
+---
+## Embarassingly parallel computation in `python` using a pool of workers
+
+.normal2[
+Three API available:
+- `multiprocessing`: first implementation.</br></br>
+
+- `concurrent.futures`: reimplementation using `multiprocessing` under the hood.</br></br>
+
+- `loky`: robustification of `concurrent.futures`.</br></br>
+]
+
+
+---
+exclude: true
+# What this talk is about?
+
+.normal2[
+
+- CPU bound computation, such as
+</br>.filler[] _Computing a large linear operation_
+</br>.filler[] _Fitting a model with a set of parameters_
+]
+
+count:false
+</br>
+.normal2[
+- Need to run it several independent times.
+</br>.filler[] _Fitting a model with $K$ sets of parameters._
+]
+
+</br>
+.normal2[
+- Computer with multiple cores.
+]
+
+---
+exclude: true
+# Embarassingly parallel computations
+.normal2[
+- Independent computations.</br></br>
+
+- Each running on one core.</br></br>
+
+- Use of the multicore architecture of your computer!</br></br>
+
+- Use a Pool of workers and a queue of jobs.
+]
+
+
+---
+exclude: true
+# Agenda
+
+### The `concurrent.futures` API
+
+--
+exclude: true
+count: false
+
+### `Thread` or `Process` ?
+
+--
+exclude: true
+count: false
+
+### The headaches of managing a pool of process: `ProcessPoolExecutor`.
+
+--
+exclude: true
+count: false
+
+### Reusable pool of workers in `loky`.
+
+--
+exclude: true
+count: false
+
+### Embarassingly simple multiprocessing: `joblib`.
+
+---
+class: middle, center
+
+# The `concurrent.futures` API
+
+---
+
+### The `Executor`: a worker pool
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+*def fit_model(params):
+*   # Heavy computation
+*   return model
+
+```
+]
+
+.right-column[
+
+`fit_model` is the function that we want to run asynchronously.
+
+.small[]
+]
+.reset-column[
+]
+
+---
+count: false
+
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+*with ThreadPoolExecutor(max_workers=4) as executor:
+```
+]
+
+.right-column[
+`fit_model` is the function that we want to run asynchronously.
+
+We instanciate a `ThreadPoolExecutor` with 4 threads.
+]
+
+
+---
+count: false
+
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+*   future1 = executor.submit(fit_model, param1)
+```
+]
+
+.right-column[
+`fit_model` is the function that we want to run asynchronously.
+
+We instanciate a `ThreadPoolExecutor` with 4 threads.
+
+A new job is submitted to the `Executor`.  
+The `Future` object `future1` holds the state of the computation.
+]
+
+
+---
+count: false
+
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+*   # Submit other job
+*   future2 = executor.submit(fit_model, param2)
+```
+]
+
+.right-column[
+`fit_model` is the function that we want to run asynchronously.
+
+We instanciate a `ThreadPoolExecutor` with 4 threads.
+
+A new job is submitted to the `Executor`.  
+The `Future` object `future1` holds the state of the computation.
+]
+
+
+---
+count: false
+
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+*   # Run other computation
+*   ...
+```
+]
+
+.right-column[
+`fit_model` is the function that we want to run asynchronously.
+
+We instanciate a `ThreadPoolExecutor` with 4 threads.
+
+A new job is submitted to the `Executor`.  
+The `Future` object `future1` holds the state of the computation.
+]
+
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+    # Blocking call, wait and return the result
+*   model1 = future1.result(timeout=None)
+*   model2 = future2.result(timeout=None)
+```
+]
+
+
+.right-column[
+`fit_model` is the function that we want to run asynchronously.
+
+We instanciate a `ThreadPoolExecutor` with 4 threads.
+
+A new job is submitted to the `Executor`.  
+The `Future` object `future1` holds the state of the computation.
+
+Wait for the computation to end and return the result with `f.result`.
+]
+
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+    # Blocking call, wait and return the result
+    model1 = future1.result(timeout=None)
+    model2 = future2.result(timeout=None)
+
+# The ressources have been cleaned up
+*print(model1, model2)
+```
+]
+
+
+.right-column[
+`fit_model` is the function that we want to run asynchronously.
+
+We instanciate a `ThreadPoolExecutor` with 4 threads.
+
+A new job is submitted to the `Executor`.  
+The `Future` object `future1` holds the state of the computation.
+
+Wait for the computation to end and return the result with `f.result`.
+
+The ressources are cleaned up.
+
+]
+
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+    # Blocking call, wait and return the result
+    model1 = future1.result(timeout=None)
+    model2 = future2.result(timeout=None)
+
+# The ressources have been cleaned up
+print(model1, model2)
+```
+]
+
+
+.right-column[
+`fit_model` is the function that we want to run asynchronously.
+
+We instanciate a `ThreadPoolExecutor` with 4 threads.
+
+A new job is submitted to the `Executor`.  
+The `Future` object `future1` holds the state of the computation.
+
+Wait for the computation to end and return the result with `f.result`.
+
+The ressources are cleaned up.
+]
+
+.reset-column[
+]
+.normal[
+Submitting more than one job returns an iterator: `executor.map`
+]
+
+<!--.footnote[.small[
+More information in [`concurrent.futures`](https://docs.python.org/3/library/concurrent.futures.html)
+documentation.
+]]-->
+
+
+---
+## The `Future` object: an asynchronous result state.
+
+### States
+
+.normal[
+
+`Future` objects hold the state of the asynchronous computations,
+wich can be in one of 4 states:
+.state[Not started], .state[Running], .state[Cancelled] and .state[Done]
+
+The state of a `Future` can be checked using `f.running, f.cancelled, f.done`.
+
+]
+
+
+.left-column[.normal[
+### Blocking methods
+
+* `f.result(timeout=None)`
+* `f.exception(timeout=None)`
+]]
+.right-column[.normal[
+</br>
+</br>
+</br>
+wait for computations to be done.
+]]
+
+
+<!--.left-column[
+```python
+    f = executor.submit(fit_model, 21, 21, delay=1)
+    print("is running:", f.running())  # True
+    print("is done:", f.done())        # False
+
+    time.sleep(1)
+    print("is running:", f.running())  # False
+    print("is done:", f.done())        # True
+
+    # The executor only has 4 workers
+    fs = [executor.submit(fit_model, 21, 21, delay=1)
+          for _ in range(5)]
+    f_last = fs[-1]
+    print("is running:", f_last.running())  # False
+    print("is done:", f_last.done())        # False
+```
+]
+.right-column[]-->
+
+???
+bla bla
+
+
+---
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+*def fit_model(params):
+*   # Heavy computation
+*   return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+    # Blocking call, wait and return the result
+    model1 = future1.result(timeout=None)
+    model2 = future2.result(timeout=None)
+
+# The ressources have been cleaned up
+print(model1, model2)
+```
+]
+
+
+.right-column[
+![:scale 100%](images/1_init.png)
+]
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+*# Create an executor with 4 threads
+*with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+    # Blocking call, wait and return the result
+    model1 = future1.result(timeout=None)
+    model2 = future2.result(timeout=None)
+
+# The ressources have been cleaned up
+print(model1, model2)
+```
+]
+
+.right-column[
+![:scale 100%](images/2_spawn.png)
+
+]
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+*   # Submit an asynchronous job and return a Future
+*   future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+    # Blocking call, wait and return the result
+    model1 = future1.result(timeout=None)
+    model2 = future2.result(timeout=None)
+
+# The ressources have been cleaned up
+print(model1, model2)
+```
+]
+
+.right-column[
+![:scale 100%](images/3_submit1.png)
+]
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+*   # Submit other job
+*   future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+    # Blocking call, wait and return the result
+    model1 = future1.result(timeout=None)
+    model2 = future2.result(timeout=None)
+
+# The ressources have been cleaned up
+print(model1, model2)
+```
+]
+
+.right-column[
+![:scale 100%](images/4_submit2.png)
+]
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+*   # Run other computation
+*   ...
+
+    # Blocking call, wait and return the result
+    model1 = future1.result(timeout=None)
+    model2 = future2.result(timeout=None)
+
+# The ressources have been cleaned up
+print(model1, model2)
+```
+]
+
+.right-column[
+![:scale 100%](images/5_running.png)
+]
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+*   # Blocking call, wait and return the result
+*   model1 = future1.result(timeout=None)
+    model2 = future2.result(timeout=None)
+
+# The ressources have been cleaned up
+print(model1, model2)
+```
+]
+
+.right-column[
+![:scale 100%](images/6_collect1.png)
+]
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+*   # Blocking call, wait and return the result
+    model1 = future1.result(timeout=None)
+*   model2 = future2.result(timeout=None)
+
+# The ressources have been cleaned up
+print(model1, model2)
+```
+]
+
+.right-column[
+![:scale 100%](images/7_collect2.png)
+]
+
+---
+count: false
+### The `Executor`: a worker pool
+
+.left-column[
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def fit_model(params):
+    # Heavy computation
+    return model
+
+# Create an executor with 4 threads
+with ThreadPoolExecutor(max_workers=4) as executor:
+
+    # Submit an asynchronous job and return a Future
+    future1 = executor.submit(fit_model, param1)
+
+    # Submit other job
+    future2 = executor.submit(fit_model, param2)
+
+    # Run other computation
+    ...
+
+    # Blocking call, wait and return the result
+    model1 = future1.result(timeout=None)
+    model2 = future2.result(timeout=None)
+
+*# The ressources have been cleaned up
+*print(model1, model2)
+```
+]
+
+.right-column[
+![:scale 100%](images/8_final.png)
+]
+
+<!---
+
+
+<div class="mermaid">
+classDiagram
+    MainProcess .. CommunicationQueue
+    CommunicationQueue .. Worker1
+    CommunicationQueue .. Worker2
+    CommunicationQueue .. Worker3
+    CommunicationQueue .. Worker4
+    MainProcess : fit_model()
+</div>
+-->
+
+
+
+---
+class: middle, center
+
+# Choosing the type of worker: `Thread` or `Process` ?
+
+---
+# Running on multiple cores
+
+## Python GIL
+
+.normal[
+The internal implementation of python interpreter relies on a
+"Global Interpreter Lock" **(GIL)**, protecting the concurrent access to
+python objects:
+
+- Only one thread can acquire it.
+
+- Not designed for efficient multicore computing.
+
+**Global lock everytime we access a python object.**
+
+Released when performing long I/O operations or by some libraries.
+</br>(_e.g._ numpy, openMP,..)
+]
+---
+# Thread
+.left-column[.normal[
+
+- Real system thread:
+    - pthread 
+    - windows thread
+
+- All the computation are done with a **single** interpreter.
+
+]]
+<div class="right-column" style="margin: -50px;">
+.normal[
+**Advantages:**
+
+- Fast spawning
+
+- Reduced memory overhead
+
+- No communication overhead (shared python objects)
+]</div>
+.reset-column[
+]
+
+--
+count: false
+
+.normal[.centered[
+    </br>
+    </br>
+Wait... shared python objects and a single interpreter?!?
+
+]]
+
+--
+count: false
+
+.centered[
+    ## There is only one GIL!
+]
+
+---
+# Thread
+
+.normal[
+Multiple threads running python code:
+![:scale 85%](images/thread-2.png)
+
+This is not quicker than sequential even on a multicore machine.
+]
+
+---
+# Thread
+
+.normal[
+Threads hold the GIL when running python code.  
+They release it when blocking for I/O:
+![](images/thread-0.png)  
+Or when using some c library:
+![](images/thread-1.png)
+
+]
+
+
+---
+exclude: true
+# Thread
+
+.left-column[
+Even worse:
+
+```python
+>>> from threading import Thread
+>>> def count(n):
+...     while n > 0:
+...         n -= 1
+
+>>> %timeit count(10000000)
+1 loop, best of 3: 409 ms per loop
+
+>>> %%timeit
+... t1 = Thread(target=count,args=(10000000,))
+... t2 = Thread(target=count,args=(10000000,))
+... t1.start(); t2.start()
+... t1.join(); t2.join()
+
+1 loop, best of 3: 836 ms per loop
+```
+]
+
+.right-column[.normal[
+    </br>
+    </br>
+    </br>
+    </br>
+    </br>
+    The threads spend more time trying to acquire the <b>GIL</b> than computing.
+]]
+
+
+
+---
+exclude: true
+.normal[
+<div class="mermaid">
+gantt
+    title Thread task schedule
+    dateFormat D
+
+    section Thread1
+    T1   :a1, 1, 6h
+    T1   :a3, after a2  , 2d
+    section Thread2
+    T2   :a2, after a1 , 1d12h
+    T2   :a6, after a5, 1d
+    section Thread3
+    T3   :a4, after a3 , 1d12h
+    T3   :a5, after a4, 1d
+</div>
+
+]
+
+---
+# Process
+.left-column[.normal[
+
+- Create a new python interpreter per worker.
+
+- Each worker run in **its own ** interpreter.
+
+]]
+
+<div class="right-column" style="margin-top: -50px;">
+.normal[
+**Inconvenients:**
+- *Slow* spawning
+
+- Higher memory overhead
+
+- Higher communication overhead.
+]</div>
+.reset-column[
+]
+
+--
+count: false
+
+.normal[
+**But there is no GIL!**
+</br>
+The computation can be done in parallel even for python code.
+
+]
+
+--
+count: false
+
+.normal[
+</br>
+Method to create a new interpreter: *fork* or *spawn*
+
+]
+
+---
+# Launching a new interpreter: *fork*
+
+
+.normal[
+
+Duplicate the current interpreter. (Only available on UNIX)
+
+
+.left-column[
+**Advantages:**
+
+- Low spawning overhead.
+
+- The interpreter is warm *imported*.
+
+]
+.right-column[
+**Inconvenient:**
+
+- Bad interaction with multithreaded programs
+
+- Does not respect the POSIX specifications
+
+]
+.reset-column[
+
+]
+$\Rightarrow$ Some libraries crash: numpy on OSX, openMP, ...
+]
+
+
+---
+# Launching a new interpreter: *spawn*
+
+
+.normal[
+
+Create a new interpreter from scratch.
+
+
+.left-column[
+**Advantages:**
+
+- Safe (respect POSIX)
+
+- Fresh interpreter without extra libraries.
+
+]
+.right-column[
+**Inconvenient:**
+
+- Slower to start.
+
+- Need to reload the libraries, redefine the functions...
+
+]
+]
+
+
+---
+exclude: true
+# Process
+
+.left-column[
+
+- Each process uses its own `python` interpreter.
+- The task can be run in parallel.
+
+]
+.right-column[
+<div class="mermaid">
+gantt
+    title Process task schedule
+    dateFormat D
+
+    section Process1
+    T1   :a1, 1, 1d
+    T3   :a3, after a1  , 2d
+    section Process2
+    T2   :a2, 1, 2d12h
+    T6   :fill,  after a2, 8
+    section Process3
+    T4   :a4, 1, 1d12h
+    T5   :a5, after a4, 1d
+</div>
+]
+
+.reset-column[
+]
+
+.normal[
+
+
+
+
+]
+
+
+---
+exclude: true
+# Sharing objects between workers
+
+.normal2[
+As processes use separate interpreters, `ProcessPoolExecutor` needs communication
+chanels to exchange python objects between processes.
+
+In `Thread` this is not an issue as the interpreter is shared.
+
+Use `pickle` to serialize the different objects in pipes or sockets.
+
+This is abstracted in the `multiprocessing.Queue`.
+
+]
+
+---
+exclude: true
+# Starting a new interpreter
+
+In `multiprocessing`, you can use `set_start_method` to use different implementations
+of `Process`:
+
+* `fork`: Fast start, clone the interpreter state.
+* `spawn`: Slow start, need to reload libraries
+* `forkserver`: Faster start but harder to use properly.
+
+Issue with `fork`: cloning the interpreter also clone the objects that point to the other Thread.
+
+???
+
+`forkserver` is faster as you can preload libraries in the server process and those libraries
+will be available in the child processes.
+
+---
+# Comparison between `Thread` and `Process`
+
+.table[
+|           |  Thread   | Process .subitem[(fork)] | Process .subitem[(spawn)] |
+|---------------|:------------------:|:------------------:|:------------------:|
+| Efficient multicore run       | ![](images/no.jpg) | ![](images/ok.jpg) | ![](images/ok.jpg) |
+| No communication overhead | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/no.jpg) |
+| POSIX safe    | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/ok.jpg) |
+| No spawning overhead | ![](images/ok.jpg) | ![](images/ok.jpg) | ![](images/no.jpg) |
+]
+
+---
+# Comparison between `Thread` and `Process`
+
+.table[
+|           |  Thread   | Process .subitem[(fork)] | Process .subitem[(spawn)] |
+|---------------|:------------------:|:------------------:|:------------------:|
+| Efficient multicore run         | ![](images/no.jpg) | ![](images/ok.jpg) | ![](images/ok.jpg) |
+| No communication overhead | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/no.jpg) |
+| POSIX safe    | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/ok.jpg) |
+| No spawning overhead | ![](images/ok.jpg) | ![](images/ok.jpg) | <img src="images/no_loky.png" alt="" style="width: 4em;"> |
+]
+
+.centered[.normal[
+</br>
+$\Rightarrow$ Hide the spawning overhead by reusing the pool of processes.
+]]
+
+---
+class: middle, center
+
+# Reusing a `ProcessPoolExecutor`.
+
+---
+# Reusing a `ProcessPoolExecutor`.
+
+</br>
+.normal2[
+
+To Avoid the spawning overhead, reuse a previously started `ProcessPoolExecutor`.
+
+The spawning overhead is only paid once.
+
+Easy using a global pool of process.  
+__Main issue:__ is that robust?
+]
+
+---
+# Managing the state of the executor
+
+.normal[
+Example deadlock
+```python
+>>> from concurrent.futures import ProcessPoolExecutor
+>>> with ProcessPoolExecutor(max_workers=4) as e:
+*...     e.submit(lambda: 1).result()
+...     
+Traceback (most recent call last):
+  File "/usr/lib/python3.6/multiprocessing/queues.py", line 241, in _feed
+    obj = _ForkingPickler.dumps(obj)
+  File "/usr/lib/python3.6/multiprocessing/reduction.py", line 51, in dumps
+    cls(buf, protocol).dump(obj)
+_pickle.PicklingError: Can't pickle <function <lambda> at 0x7fcff0184d08>:
+attribute lookup <lambda> on __main__ failed
+
+^C
+
+```
+
+It can be tricky to know which `submit` call crashed the `Executor`.
+]
+
+
+---
+# Managing the state of the executor
+
+.normal[
+Example deadlock
+```python
+>>> from concurrent.futures import ProcessPoolExecutor
+>>> with ProcessPoolExecutor(max_workers=4) as e:
+*...     e.submit(lambda: 1)
+...
+Traceback (most recent call last):
+  File "/usr/lib/python3.6/multiprocessing/queues.py", line 241, in _feed
+    obj = _ForkingPickler.dumps(obj)
+  File "/usr/lib/python3.6/multiprocessing/reduction.py", line 51, in dumps
+    cls(buf, protocol).dump(obj)
+_pickle.PicklingError: Can't pickle <function <lambda> at 0x7f5c787bd488>:
+attribute lookup <lambda> on __main__ failed
+
+^C
+
+```
+
+Even worse, shutdown itself is deadlocked.
+
+]
+
+---
+exclude: true
+# Managing the state of the executor
+
+.normal[
+Example deadlock n2
+```python
+>>> from concurrent.futures import ProcessPoolExecutor
+>>> def error():
+...     raise RuntimeError()
+... 
+>>> class CrashAtUnpickle(object):
+...     """Bad object that triggers a segfault at unpickling time."""
+...     def __reduce__(self):
+...         return error, ()
+...     
+>>> def return_instance(cls):
+...     return cls()
+... 
+>>> with ProcessPoolExecutor(max_workers=4) as e:
+...     e.submit(return_instance, CrashAtUnpickle).result()
+...     
+Exception in thread Thread-132:
+Traceback (most recent call last):
+    ....
+    raise RuntimeError()
+RuntimeError
+
+^C
+```
+]
+
+---
+class: middle, center
+
+# Reusable pool of workers: `loky`.
+
+---
+# `loky`: a robust pool of workers
+
+
+.normal[
+```python
+>>> from loky import ProcessPoolExecutor
+>>> class CrashAtPickle(object):
+...     """Bad object that triggers a segfault at unpickling time."""
+...     def __reduce__(self):
+...         raise RuntimeError()
+...     
+>>> with ProcessPoolExecutor(max_workers=4) as e:
+...     e.submit(CrashAtPickle()).result()
+...     
+Traceback (most recent call last):
+...
+RuntimeError
+Traceback (most recent call last):
+...
+BrokenExecutor: The QueueFeederThread was terminated abruptly while feeding a
+new job. This can be due to a job pickling error.
+>>>
+```
+
+- Return and raise a user friendly exception.
+- Fix some other deadlocks.
+
+
+]
+
+---
+# A reusable `ProcessPoolExecutor`
+
+.left-column[
+```python
+*>>> from loky import get_reusable_executor
+*>>> excutor = get_reusable_executor(max_workers=4)
+*>>> print(excutor.executor_id)
+*0
+
+>>> excutor.submit(id, 42).result()
+139655595838272
+
+>>> excutor = get_reusable_executor(max_workers=4)
+>>> print(excutor.executor_id)
+0
+
+>>> excutor.submit(CrashAtUnpickle()).result()
+Traceback (most recent call last):
+...
+BrokenExecutorError
+>>> excutor = get_reusable_executor(max_workers=4)
+>>> print(excutor.executor_id)
+1
+>>> excutor.submit(id, 42).result()
+139655595838272
+
+```
+]
+
+.right-column[
+
+Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor`.
+
+.small[]
+]
+
+
+---
+count: false
+# A reusable `ProcessPoolExecutor`
+
+.left-column[
+```python
+>>> from loky import get_reusable_executor
+>>> excutor = get_reusable_executor(max_workers=4)
+>>> print(excutor.executor_id)
+0
+
+*>>> excutor.submit(id, 42).result()
+*139655595838272
+
+>>> excutor = get_reusable_executor(max_workers=4)
+>>> print(excutor.executor_id)
+0
+
+>>> excutor.submit(CrashAtUnpickle()).result()
+Traceback (most recent call last):
+...
+BrokenExecutorError
+>>> excutor = get_reusable_executor(max_workers=4)
+>>> print(excutor.executor_id)
+1
+>>> excutor.submit(id, 42).result()
+139655595838272
+
+```
+]
+.right-column[
+Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor`.
+
+The executor can be used exactly as `ProcessPoolExecutor`.
+]
+
+
+---
+count: false
+# A reusable `ProcessPoolExecutor`
+
+.left-column[
+```python
+>>> from loky import get_reusable_executor
+>>> excutor = get_reusable_executor(max_workers=4)
+>>> print(excutor.executor_id)
+0
+
+>>> excutor.submit(id, 42).result()
+139655595838272
+
+*>>> excutor = get_reusable_executor(max_workers=4)
+*>>> print(excutor.executor_id)
+*0
+
+>>> excutor.submit(CrashAtUnpickle()).result()
+Traceback (most recent call last):
+...
+BrokenExecutorError
+>>> excutor = get_reusable_executor(max_workers=4)
+>>> print(excutor.executor_id)
+1
+>>> excutor.submit(id, 42).result()
+139655595838272
+
+```
+]
+.right-column[
+Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor`.
+
+The executor can be used exactly as `ProcessPoolExecutor`.
+
+When the factory is called elsewhere, reuse the same executor if it is working.
+]
+
+
+---
+count: false
+# A reusable `ProcessPoolExecutor`
+
+.left-column[
+```python
+>>> from loky import get_reusable_executor
+>>> excutor = get_reusable_executor(max_workers=4)
+>>> print(excutor.executor_id)
+0
+
+>>> excutor.submit(id, 42).result()
+139655595838272
+
+>>> excutor = get_reusable_executor(max_workers=4)
+>>> print(excutor.executor_id)
+0
+
+>>> excutor.submit(CrashAtUnpickle()).result()
+Traceback (most recent call last):
+...
+*BrokenExecutorError
+*>>> excutor = get_reusable_executor(max_workers=4)
+*>>> print(excutor.executor_id)
+*1
+>>> excutor.submit(id, 42).result()
+139655595838272
+
+```
+]
+.right-column[
+Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor`.
+
+The executor can be used exactly as `ProcessPoolExecutor`.
+
+When the factory is called elsewhere, reuse the same executor if it is working.
+
+When the executor is broken, automatically re-spawn a new one.
+]
+
+
+---
+
+class: middle, center
+
+# Conclusion
+
+---
+# Conclusion
+
+.normal3[
+
+- `Thread` can be efficient to run multicore programs if your code releases the **GIL**.
+
+- Else, you should use `Process` with `spawn` and try to reuse the pool of process as much as possible.
+
+- `loky` can help you do that ;).
+
+- Improves the management of a pool of workers in projects such as `joblib`.
+
+]
+
+---
+
+class: middle, center
+
+# Thanks for your attention!
+
+.normal[
+</br>
+<div style="text-align:left">
+Slides available at [tommoral.github.io/pyparis17/](https://tommoral.github.io/pyparis17/)
+</br></br>
+More on the GIL by Dave Beazley : [dabeaz.com/python/GIL.pdf](http://dabeaz.com/python/GIL.pdf)</br></br>
+![:scale 1em](images/github.png) Loky project : [github.com/tommoral/loky](https://github.com/tommoral/loky)</br></br>
+![:scale 1em](images/twitter.png) @[tomamoral](https://twitter.com/tomamoral) </br>
+</div>
+]
+.filler[]
+
+
+
+</textarea>
+<style TYPE="text/css">
+      code.has-jax {font: inherit; font-size: 100%; background: inherit; border: inherit;}
+</style>
+<!--<script type="text/javascript" src="/usr/share/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>-->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="../remark/remark.min.js" type="text/javascript"> </script>
+<script src="../mermaid/mermaid.min.js"></script>
+<script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+    var slideshow = remark.create(config_remark);
+
+
+    // Configure Mermaid diagrams
+    /*var config_mermaid = {
+        startOnLoad: false,
+        flowchart:{
+                useMaxWidth:false,
+                htmlLabels:true
+        },
+        gantt:{
+            barHeight: 24,
+            fontSize: 24
+        }
+    };
+    mermaid.initialize(config_mermaid);
+
+    // Fix the slide display in remark
+    function initMermaid(s) {
+        var diagrams = document.querySelectorAll('.mermaid');
+        var i;
+        for(i=0;i<diagrams.length;i++){
+            if(diagrams[i].offsetWidth > 0){
+                mermaid.init(undefined, diagrams[i]);
+            }
+        }
+    }
+    slideshow.on('afterShowSlide', initMermaid);*/
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+
+</script>
+</body>
+</html>
