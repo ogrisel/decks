@@ -15,9 +15,9 @@ class: center, middle
 # Tricks for Efficient Multicore Computing
 
 .normal[
-</br>
+<br/>
 Thomas Moreau - **Olivier Grisel** 
-</br>
+<br/>
 ]
 
 ---
@@ -34,11 +34,11 @@ Thomas Moreau - **Olivier Grisel**
 
 .normal2[
 Three APIs available:
-- `multiprocessing`: first implementation.</br></br>
+- `multiprocessing`: first implementation.<br/><br/>
 
-- `concurrent.futures`: reimplementation using `multiprocessing` under the hood.</br></br>
+- `concurrent.futures`: reimplementation using `multiprocessing` under the hood.<br/><br/>
 
-- `loky`: robustification of `concurrent.futures`.</br></br>
+- `loky`: robustification of `concurrent.futures`.<br/><br/>
 ]
 
 ---
@@ -370,9 +370,9 @@ The state of a `Future` can be checked using `f.running, f.cancelled, f.done`.
 * `f.exception(timeout=None)`
 ]]
 .right-column[.normal[
-</br>
-</br>
-</br>
+<br/>
+<br/>
+<br/>
 wait for computations to be done.
 ]]
 
@@ -722,7 +722,7 @@ class: middle, center
 # `Thread` or `Process` ?
 
 ---
-# Thread
+# Thread Worker
 .left-column[.normal[
 
 - Real system thread:
@@ -749,8 +749,8 @@ class: middle, center
 count: false
 
 .normal[.centered[
-    </br>
-    </br>
+    <br/>
+    <br/>
 Wait... shared python objects and a single interpreter?!?
 
 ]]
@@ -779,7 +779,7 @@ Released by some libraries: numpy, pandas, sklearn, Cython `with nogil`...
 ]
 
 ---
-# Thread
+# Thread Worker
 
 .normal[
 Multiple threads running python code:
@@ -789,13 +789,13 @@ This is not quicker than sequential even on a multicore machine.
 ]
 
 ---
-# Thread
+# Thread Worker
 
 .normal[
 Threads hold the GIL when running python code.  
 They release it when blocking for I/O:
 ![](images/thread-0.png)  
-Or when using some c library:
+Or when calling into some native library:
 ![](images/thread-1.png)
 
 ]
@@ -803,7 +803,7 @@ Or when using some c library:
 
 ---
 exclude: true
-# Thread
+# Thread Worker
 
 .left-column[
 Even worse:
@@ -828,39 +828,17 @@ Even worse:
 ]
 
 .right-column[.normal[
-    </br>
-    </br>
-    </br>
-    </br>
-    </br>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
     The threads spend more time trying to acquire the <b>GIL</b> than computing.
 ]]
 
 
-
 ---
-exclude: true
-.normal[
-<div class="mermaid">
-gantt
-    title Thread task schedule
-    dateFormat D
-
-    section Thread1
-    T1   :a1, 1, 6h
-    T1   :a3, after a2  , 2d
-    section Thread2
-    T2   :a2, after a1 , 1d12h
-    T2   :a6, after a5, 1d
-    section Thread3
-    T3   :a4, after a3 , 1d12h
-    T3   :a5, after a4, 1d
-</div>
-
-]
-
----
-# Process
+# Process Worker
 .left-column[.normal[
 
 - Create a new python interpreter per worker.
@@ -885,8 +863,8 @@ gantt
 count: false
 
 .normal[
-**But there is no GIL!**
-</br>
+**But there is GIL contention anymore!**
+<br/></br/>
 The computation can be done in parallel even for python code.
 
 ]
@@ -895,8 +873,8 @@ The computation can be done in parallel even for python code.
 count: false
 
 .normal[
-</br>
-Method to create a new interpreter: *fork* or *spawn*
+<br/>
+Methods to create a new interpreter: *fork* or *spawn*
 
 ]
 
@@ -952,7 +930,7 @@ Create a new interpreter from scratch.
 .right-column[
 **Inconvenient:**
 
-- Slower to start.
+- Slower to start  (50-300ms)
 
 - Need to reload the libraries, redefine the functions...
 
@@ -965,7 +943,7 @@ Create a new interpreter from scratch.
 .table[
 |           |  Thread   | Process .subitem[(fork)] | Process .subitem[(spawn)] |
 |---------------|:------------------:|:------------------:|:------------------:|
-| Efficient multicore run       | ![](images/no.jpg) | ![](images/ok.jpg) | ![](images/ok.jpg) |
+| Efficient multicore on pure Python code | ![](images/no.jpg) | ![](images/ok.jpg) | ![](images/ok.jpg) |
 | No communication overhead | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/no.jpg) |
 | POSIX safe    | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/ok.jpg) |
 | No spawning overhead | ![](images/ok.jpg) | ![](images/ok.jpg) | ![](images/no.jpg) |
@@ -977,14 +955,14 @@ Create a new interpreter from scratch.
 .table[
 |           |  Thread   | Process .subitem[(fork)] | Process .subitem[(spawn)] |
 |---------------|:------------------:|:------------------:|:------------------:|
-| Efficient multicore run         | ![](images/no.jpg) | ![](images/ok.jpg) | ![](images/ok.jpg) |
+| Efficient multicore on pure Python code | ![](images/no.jpg) | ![](images/ok.jpg) | ![](images/ok.jpg) |
 | No communication overhead | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/no.jpg) |
 | POSIX safe    | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/ok.jpg) |
 | No spawning overhead | ![](images/ok.jpg) | ![](images/ok.jpg) | <img src="images/no_loky.png" alt="" style="width: 4em;"> |
 ]
 
 .centered[.normal[
-</br>
+<br/>
 $\Rightarrow$ Hide the spawning overhead by reusing the pool of processes.
 ]]
 
@@ -996,7 +974,7 @@ class: middle, center
 ---
 # Reusing a `ProcessPoolExecutor`.
 
-</br>
+<br/>
 .normal2[
 
 To Avoid the spawning overhead, reuse a previously started `ProcessPoolExecutor`.
@@ -1011,7 +989,7 @@ __Main issue:__ is that robust?
 # Managing the state of the executor
 
 .normal[
-Example deadlock
+Example deadlock:
 ```python
 >>> from concurrent.futures import ProcessPoolExecutor
 >>> with ProcessPoolExecutor(max_workers=4) as e:
@@ -1037,7 +1015,7 @@ It can be tricky to know which `submit` call crashed the `Executor`.
 # Managing the state of the executor
 
 .normal[
-Example deadlock
+Example deadlock:
 ```python
 >>> from concurrent.futures import ProcessPoolExecutor
 >>> with ProcessPoolExecutor(max_workers=4) as e:
@@ -1064,7 +1042,7 @@ exclude: true
 # Managing the state of the executor
 
 .normal[
-Example deadlock n2
+Example deadlock n2:
 ```python
 >>> from concurrent.futures import ProcessPoolExecutor
 >>> def error():
@@ -1283,6 +1261,54 @@ When the executor is broken, automatically re-spawn a new one.
 
 
 ---
+class: middle, center
+
+# Thread-based multicore computing for arrays with BLAS
+
+---
+# BLAS
+
+### Numpy is a Python wrapper for BLAS routines
+
+### Efficient implementations:
+
+- OpenBLAS (numpy from PyPI or conda-forge)
+- Intel MKL (numpy installed from Anaconda)
+
+### `np.dot(A, B)` will use all cores by default
+
+### Control number of threads with env variables:
+
+- `OPENBLAS_NUM_THREADS=2 python mycode.py`
+
+- `MKL_NUM_THREADS=2 python mycode.py`
+
+---
+class: center, middle
+
+# Roofline Analysis
+
+---
+class: center, middle
+
+![MKL roofline](images/roofline_mkl.png)
+
+---
+class: center, middle
+
+![OpenBLAS roofline](images/roofline_openblas.png)
+
+---
+class: center, middle
+
+![MKL roofline 10 cores](images/roofline_mkl_10_cores.png)
+
+---
+class: center, middle
+
+![Speed up 10 cores](images/speedup_mkl_10_cores.png)
+
+---
 
 class: middle, center
 
@@ -1297,7 +1323,7 @@ class: middle, center
 
 - Array operations already benefit from threading via numpy + BLAS (e.g. MKL or OpenBLAS)
 
-- `loky` uses `Process` with `spawn` and try to reuse the pool of process as much as possible.
+- `loky` uses `Process` with `spawn` and tries to reuse the pool of process as much as possible.
 
 - `loky` will be used by default in future `joblib` and `scikit-learn`.
 
@@ -1310,15 +1336,15 @@ class: middle, center
 # Thanks for your attention!
 
 .normal[
-</br>
+<br/>
 <div style="text-align:left">
 Slides available at [ogrisel.github.io/decks/2017_euroscipy_parallelism](https://ogrisel.github.io/decks/2017_euroscipy_parallelism)
-</br></br>
+<br/><br/>
 Based on Thomas Moreau slides available at [tommoral.github.io/pyparis17/](https://tommoral.github.io/pyparis17/)
-</br></br>
-More on the GIL by Dave Beazley : [dabeaz.com/python/GIL.pdf](http://dabeaz.com/python/GIL.pdf)</br></br>
-![:scale 1em](images/github.png) Loky project : [github.com/tommoral/loky](https://github.com/tommoral/loky)</br></br>
-![:scale 1em](images/twitter.png) @[ogrisel](https://twitter.com/ogrisel) </br>
+<br/><br/>
+More on the GIL by Dave Beazley : [dabeaz.com/python/GIL.pdf](http://dabeaz.com/python/GIL.pdf)<br/><br/>
+![:scale 1em](images/github.png) Loky project : [github.com/tommoral/loky](https://github.com/tommoral/loky)<br/><br/>
+![:scale 1em](images/twitter.png) @[ogrisel](https://twitter.com/ogrisel) <br/>
 </div>
 ]
 .filler[]
