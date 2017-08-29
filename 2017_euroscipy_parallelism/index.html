@@ -41,74 +41,6 @@ Three API available:
 - `loky`: robustification of `concurrent.futures`.</br></br>
 ]
 
-
----
-exclude: true
-# What this talk is about?
-
-.normal2[
-
-- CPU bound computation, such as
-</br>.filler[] _Computing a large linear operation_
-</br>.filler[] _Fitting a model with a set of parameters_
-]
-
-count:false
-</br>
-.normal2[
-- Need to run it several independent times.
-</br>.filler[] _Fitting a model with $K$ sets of parameters._
-]
-
-</br>
-.normal2[
-- Computer with multiple cores.
-]
-
----
-exclude: true
-# Embarassingly parallel computations
-.normal2[
-- Independent computations.</br></br>
-
-- Each running on one core.</br></br>
-
-- Use of the multicore architecture of your computer!</br></br>
-
-- Use a Pool of workers and a queue of jobs.
-]
-
-
----
-exclude: true
-# Agenda
-
-### The `concurrent.futures` API
-
---
-exclude: true
-count: false
-
-### `Thread` or `Process` ?
-
---
-exclude: true
-count: false
-
-### The headaches of managing a pool of process: `ProcessPoolExecutor`.
-
---
-exclude: true
-count: false
-
-### Reusable pool of workers in `loky`.
-
---
-exclude: true
-count: false
-
-### Embarassingly simple multiprocessing: `joblib`.
-
 ---
 class: middle, center
 
@@ -788,25 +720,6 @@ class: middle, center
 # Choosing the type of worker: `Thread` or `Process` ?
 
 ---
-# Running on multiple cores
-
-## Python GIL
-
-.normal[
-The internal implementation of python interpreter relies on a
-"Global Interpreter Lock" **(GIL)**, protecting the concurrent access to
-python objects:
-
-- Only one thread can acquire it.
-
-- Not designed for efficient multicore computing.
-
-**Global lock everytime we access a python object.**
-
-Released when performing long I/O operations or by some libraries.
-</br>(_e.g._ numpy, openMP,..)
-]
----
 # Thread
 .left-column[.normal[
 
@@ -823,7 +736,7 @@ Released when performing long I/O operations or by some libraries.
 
 - Fast spawning
 
-- Reduced memory overhead
+- Low memory overhead
 
 - No communication overhead (shared python objects)
 ]</div>
@@ -845,6 +758,22 @@ count: false
 
 .centered[
     ## There is only one GIL!
+]
+
+---
+# Python Global Interpreter Lock (GIL)
+
+.normal[
+
+- Only one thread can acquire it at a time.
+
+- Not designed for efficient multicore computing.
+
+**Global lock everytime we access a python object.**
+
+Released when performing long I/O operations
+
+Released by some libraries: numpy, pandas, sklearn, Cython `with nogil`...
 ]
 
 ---
@@ -997,7 +926,7 @@ Duplicate the current interpreter. (Only available on UNIX)
 .reset-column[
 
 ]
-$\Rightarrow$ Some libraries crash: numpy on OSX, openMP, ...
+$\Rightarrow$ Some libraries crash: numpy on OSX (Accelerate), OpenMP from GCC...
 ]
 
 
@@ -1028,82 +957,8 @@ Create a new interpreter from scratch.
 ]
 ]
 
-
 ---
-exclude: true
-# Process
-
-.left-column[
-
-- Each process uses its own `python` interpreter.
-- The task can be run in parallel.
-
-]
-.right-column[
-<div class="mermaid">
-gantt
-    title Process task schedule
-    dateFormat D
-
-    section Process1
-    T1   :a1, 1, 1d
-    T3   :a3, after a1  , 2d
-    section Process2
-    T2   :a2, 1, 2d12h
-    T6   :fill,  after a2, 8
-    section Process3
-    T4   :a4, 1, 1d12h
-    T5   :a5, after a4, 1d
-</div>
-]
-
-.reset-column[
-]
-
-.normal[
-
-
-
-
-]
-
-
----
-exclude: true
-# Sharing objects between workers
-
-.normal2[
-As processes use separate interpreters, `ProcessPoolExecutor` needs communication
-chanels to exchange python objects between processes.
-
-In `Thread` this is not an issue as the interpreter is shared.
-
-Use `pickle` to serialize the different objects in pipes or sockets.
-
-This is abstracted in the `multiprocessing.Queue`.
-
-]
-
----
-exclude: true
-# Starting a new interpreter
-
-In `multiprocessing`, you can use `set_start_method` to use different implementations
-of `Process`:
-
-* `fork`: Fast start, clone the interpreter state.
-* `spawn`: Slow start, need to reload libraries
-* `forkserver`: Faster start but harder to use properly.
-
-Issue with `fork`: cloning the interpreter also clone the objects that point to the other Thread.
-
-???
-
-`forkserver` is faster as you can preload libraries in the server process and those libraries
-will be available in the child processes.
-
----
-# Comparison between `Thread` and `Process`
+# `Thread` vs `Process`
 
 .table[
 |           |  Thread   | Process .subitem[(fork)] | Process .subitem[(spawn)] |
@@ -1115,7 +970,7 @@ will be available in the child processes.
 ]
 
 ---
-# Comparison between `Thread` and `Process`
+# `Thread` vs `Process`
 
 .table[
 |           |  Thread   | Process .subitem[(fork)] | Process .subitem[(spawn)] |
