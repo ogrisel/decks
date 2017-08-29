@@ -1,0 +1,262 @@
+
+html{
+	background-color: #8d8d8d;
+    overflow-y: scroll;
+}
+
+body{
+	margin: 0 0 0 0;
+}
+
+a{
+    outline: 0;
+}
+
+#sidebar, #page{
+	min-height: 600px;
+	display: inline-block;
+	margin-left: 5%;
+}
+
+.fa,.ai{
+	color: black;
+	margin-left: .1em;
+	margin-right: .1em;
+}
+
+
+#sidebar{
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	width: 20%;
+	text-align: center;
+	min-width: 300px;
+	padding: 5em 0em 5em 0em;
+
+	color: white;
+
+	background-color: rgba(0, 57, 158, 0.7);
+	background: -moz-linear-gradient(rgba(0, 57, 158, 0.7), rgba(0, 57, 158, 1));
+	background: linear-gradient(rgba(0, 57, 158, 0.5), rgba(0, 57, 158, 1));
+}
+	#sidebar .site-title a:link{
+		text-decoration: none;
+	}
+
+	#sidebar header{
+		margin-bottom: 15%;
+		margin-top: 15%;
+	}
+	#sidebar a:link,#sidebar a:visited{
+		color:white;
+	}
+	.profile_img{
+		border-radius: 50%;
+	}
+
+	.menu-nav{
+		border-bottom: solid darkgray 1px;
+		border-top: solid darkgray 1px;
+		text-align: left;
+		width: 60%;
+		margin-left: 15%;
+		padding: 5% 0% 5% 10%;
+		list-style-type: circle;
+	}
+	.menu-toggle{
+		visibility: hidden;
+	}
+	#sidebar .email{
+		margin-left: 1em;
+		margin-right: 1em;
+	}
+
+#page:before {
+    content: "";
+    display: inline-block;
+    width: 25%;
+    min-width: 300px;
+    background-color: yellow;
+}
+#page{
+	background-color: white;
+	/*width: 75%;
+	min-width: 900px;*/
+	min-height: 100%;
+	vertical-align: top;
+	margin-right: 5%;
+}
+	#page .page-content{
+		padding-top: 5em;
+		width: 70%;
+		display: inline-block;
+		vertical-align: top;
+	}
+	#page .inner-text{
+		padding-left: 8%;
+		text-align: justify;
+	}
+	#page h3{
+		padding-left: 3%;
+	}
+	#page .fa{
+		color: black;
+}
+
+.entry-content{
+	width: 95%;
+	padding-top: 1em;
+}
+
+
+/*------------------------------------------------------
+						List of projects
+-------------------------------------------------------*/
+.publication, .project, .talk{
+	background-color: rgba(128, 128, 128, .1);
+	margin: 1em;
+	padding: 1em;
+	width: 95%;
+	display: list-item;
+}
+.project_item{
+	width: 100%;
+}
+.title{
+	font-weight: bold;
+	color: rgba(0, 57, 158, 0.7);
+}
+.authors{
+	font-style: italic;
+}
+
+.project .date{
+	float: right;
+}
+.display-status{
+	float: right;
+	margin: 1em 0 0 0;
+	cursor: pointer;
+}
+.description{
+	text-align: justify;
+	margin-top: 1em;
+	margin-left: 1em;
+	width: 90%;
+	margin-right: 5%;
+}
+
+/*----------------------------------------------
+           Full CSS buttons control
+----------------------------------------------*/
+
+.btnCtrl,
+.btnCtrl:checked + label > .plus,
+.btnCtrl + label > .minus,
+.btnCtrl + label + .description > .details,
+.btnCtrl:checked + label + .description > .summary
+{
+    display: none;
+}
+
+
+.btnCtrl:checked + label > .minus,
+.btnCtrl + label > .plus,
+.btnCtrl:checked + label + .description > .details,
+.btnCtrl + label + .description > .summary
+{
+	display: block;
+}
+
+
+/*-------------------------------------------------
+	 tweak look for mobile and small screen
+-------------------------------------------------*/
+
+@media only screen and (max-width: 1164px) {
+	html{
+		background-color: #FFFFFF;
+	}
+	#sidebar{
+		position: inherit;
+		width: 100%;
+		height: 450px;
+		text-align: center;
+		min-width: 200px;
+		min-height: 450px;
+		padding: 0em 0em 0em 0em;
+		margin-left: 0;
+	}
+
+	#sidebar header{
+		margin-bottom: 5%;
+		margin-top: 5%;
+	}
+
+	#page{
+		margin-left: 0;
+		margin-right: 0;
+		width: 100%;
+	}
+
+	#page .page-content{
+		padding-top: 5em;
+		width: 100%;
+	}
+
+	#page:before {
+		min-width: 200px;
+	}
+
+	.project, .talk, .publication{
+		margin: 1em 0em 1em 0em;
+	}
+
+	.profile_img{
+		width: 20%;
+		max-width: 100px;
+		margin: 2em 0em 2em 2em;
+	}
+
+	.info, .profile_img{
+		display:inline-block;
+		vertical-align: middle;
+	}
+
+	.menu-nav{
+		padding: 1em 0 1em 10%;
+	}
+
+}
+
+@media only screen and (max-width: 480px) {
+	.info{
+		font-size: 14px;
+		width: 70%;
+	}
+	.profile_img{
+		margin-left: 1em;
+	}
+
+}
+
+@media only screen and (max-width: 400px) {
+	.info{
+		font-size: 12px;
+	}
+
+}
+
+
+/*-------------------------------------------------
+	          code highlighting
+-------------------------------------------------*/
+
+.highlightcode {
+	color: #484898;
+	font-weight: bold;
+}
+.title > .highlightcode{
+	color: #151584;
+}

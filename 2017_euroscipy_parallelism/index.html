@@ -3,33 +3,34 @@
 <head>
 <title>Loky</title>
 <meta charset="utf-8">
-<link rel="stylesheet" type="text/css" href="../remark/slides.css">
-<link rel="stylesheet" href="../mermaid/mermaid.forest.min.css">
-<link rel="stylesheet" href="../font-awesome-4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="./remark/slides.css">
+<link rel="stylesheet" href="./mermaid/mermaid.forest.min.css">
+<link rel="stylesheet" href="./font-awesome-4.7.0/css/font-awesome.min.css">
 
 </head>
   <body>
     <textarea id="source">
 class: center, middle
 
-# Robustifying `concurrent.futures`
+# Tricks for Efficient Multicore Computing
 
 .normal[
 </br>
-**Thomas Moreau** - Olivier Grisel  
+Thomas Moreau - **Olivier Grisel** 
 </br>
 ]
 
-.affiliations[
-  ![CMLA](images/logo_cmla.png)
-  ![ENS Paris-Saclay](images/logo_ens.png)
-  ![Heuritech](images/logo heuritech v2.png)
-]
+---
+# Outline
 
+### Introduction to the `concurrent.futures` API
 
+### Thread-based vs Process-based multicore computing
+
+### Thread-based parallelism for array processing with BLAS
 
 ---
-## Embarassingly parallel computation in `python` using a pool of workers
+# Embarassingly parallel computation
 
 .normal2[
 Three API available:
@@ -1435,13 +1436,13 @@ class: middle, center
 
 .normal3[
 
-- `Thread` can be efficient to run multicore programs if your code releases the **GIL**.
+- `Thread` is the best method to run multicore programs if your code releases the **GIL** in performance critical sections.
 
-- Else, you should use `Process` with `spawn` and try to reuse the pool of process as much as possible.
+- Array operations already benefit from threading via numpy + BLAS (e.g. MKL or OpenBLAS)
 
-- `loky` can help you do that ;).
+- `loky` uses `Process` with `spawn` and try to reuse the pool of process as much as possible.
 
-- Improves the management of a pool of workers in projects such as `joblib`.
+- `loky` will be used by default in future `joblib` and `scikit-learn`.
 
 ]
 
@@ -1454,11 +1455,13 @@ class: middle, center
 .normal[
 </br>
 <div style="text-align:left">
-Slides available at [tommoral.github.io/pyparis17/](https://tommoral.github.io/pyparis17/)
+Slides available at [ogrisel.github.io/decks/2017_euroscipy_parallelism](https://ogrisel.github.io/decks/2017_euroscipy_parallelism)
+</br></br>
+Based on Thomas Moreau slides available at [tommoral.github.io/pyparis17/](https://tommoral.github.io/pyparis17/)
 </br></br>
 More on the GIL by Dave Beazley : [dabeaz.com/python/GIL.pdf](http://dabeaz.com/python/GIL.pdf)</br></br>
 ![:scale 1em](images/github.png) Loky project : [github.com/tommoral/loky](https://github.com/tommoral/loky)</br></br>
-![:scale 1em](images/twitter.png) @[tomamoral](https://twitter.com/tomamoral) </br>
+![:scale 1em](images/twitter.png) @[ogrisel](https://twitter.com/ogrisel) </br>
 </div>
 ]
 .filler[]
@@ -1471,8 +1474,8 @@ More on the GIL by Dave Beazley : [dabeaz.com/python/GIL.pdf](http://dabeaz.com/
 </style>
 <!--<script type="text/javascript" src="/usr/share/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>-->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script src="../remark/remark.min.js" type="text/javascript"> </script>
-<script src="../mermaid/mermaid.min.js"></script>
+<script src="./remark/remark.min.js" type="text/javascript"> </script>
+<script src="./mermaid/mermaid.min.js"></script>
 <script>
     // Config Remark
     remark.macros['scale'] = function (percentage) {
