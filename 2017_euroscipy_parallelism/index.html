@@ -42,7 +42,7 @@ Thomas Moreau - **Olivier Grisel**
 Three APIs available:
 - `multiprocessing.Pool`: first implementation<br/><br/>
 
-- `concurrent.futures`: new API reusing some `multiprocessing` under the hood<br/><br/>
+- `concurrent.futures`: newer API reusing some `multiprocessing` under the hood<br/><br/>
 
 - `loky`: robustification of `concurrent.futures`<br/><br/>
 ]
@@ -787,7 +787,6 @@ The executor can be used exactly as `ProcessPoolExecutor`.
 When the factory is called elsewhere, reuse the same executor if it is working.
 ]
 
-
 ---
 count: false
 # A reusable `ProcessPoolExecutor`
@@ -810,6 +809,47 @@ count: false
 *Traceback (most recent call last):
 *...
 *BrokenExecutorError
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
+1
+>>> executor.submit(id, 42).result()
+139655595838272
+
+```
+]
+.small-right-column[
+Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor`.
+
+The executor can be used exactly as `ProcessPoolExecutor`.
+
+When the factory is called elsewhere, reuse the same executor if it is working.
+
+When the executor is broken, an exception is raised without deadlock.
+]
+
+
+---
+count: false
+# A reusable `ProcessPoolExecutor`
+
+.wide-left-column[
+```python
+>>> from loky import get_reusable_executor
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
+0
+
+>>> executor.submit(id, 42).result()
+139655595838272
+
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
+0
+
+>>> executor.submit(func, crash_when_unpickled).result()
+Traceback (most recent call last):
+...
+BrokenExecutorError
 *>>> executor = get_reusable_executor(max_workers=4)
 *>>> print(executor.executor_id)
 *1
@@ -825,7 +865,9 @@ The executor can be used exactly as `ProcessPoolExecutor`.
 
 When the factory is called elsewhere, reuse the same executor if it is working.
 
-When the executor is broken, automatically re-spawn a new one.
+When the executor is broken, an exception is raised without deadlock.
+
+Fetching the singleton again creates a fresh working instance.
 ]
 
 
