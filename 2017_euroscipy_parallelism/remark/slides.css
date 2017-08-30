@@ -81,12 +81,14 @@ td, th {
 .big .remark-code  {
   font-size: 200%;
 }
+
 .remark-code, .remark-inline-code {
    font-family: 'Ubuntu Mono';
    color: #900;
    color: #333;
    background-color: #f8f8f8;
    padding: .2em;
+   font-size: 80%;
 }
 
 .medium .remark-code  {
@@ -147,6 +149,17 @@ a:visited {
 .subitem{
   font-weight: normal;
   
+}
+
+.wide-left-column {
+  width: 58%;
+  float: left;
+  font-size: 130%;
+}
+
+.small-right-column {
+  width: 38%;
+  float: right;
 }
 
 .left-column, .right-column {
