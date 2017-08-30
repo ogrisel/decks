@@ -665,32 +665,6 @@ Example deadlock:
 ```python
 >>> from concurrent.futures import ProcessPoolExecutor
 >>> with ProcessPoolExecutor(max_workers=4) as e:
-*...     e.submit(lambda: 1).result()
-...     
-Traceback (most recent call last):
-  File "/usr/lib/python3.6/multiprocessing/queues.py", line 241, in _feed
-    obj = _ForkingPickler.dumps(obj)
-  File "/usr/lib/python3.6/multiprocessing/reduction.py", line 51, in dumps
-    cls(buf, protocol).dump(obj)
-_pickle.PicklingError: Can't pickle <function <lambda> at 0x7fcff0184d08>:
-attribute lookup <lambda> on __main__ failed
-
-^C
-
-```
-
-It can be tricky to know which `submit` call crashed the `Executor`.
-]
-
-
----
-# Managing the state of the executor
-
-.normal[
-Example deadlock:
-```python
->>> from concurrent.futures import ProcessPoolExecutor
->>> with ProcessPoolExecutor(max_workers=4) as e:
 *...     e.submit(lambda: 1)
 ...
 Traceback (most recent call last):
@@ -705,109 +679,47 @@ attribute lookup <lambda> on __main__ failed
 
 ```
 
-Even worse, shutdown itself is deadlocked.
+The executor is deadlocked: the exception is printed on stderr but cannot
+be caught.
 
-]
-
----
-exclude: true
-# Managing the state of the executor
-
-.normal[
-Example deadlock n2:
-```python
->>> from concurrent.futures import ProcessPoolExecutor
->>> def error():
-...     raise RuntimeError()
-... 
->>> class CrashAtUnpickle(object):
-...     """Bad object that triggers a segfault at unpickling time."""
-...     def __reduce__(self):
-...         return error, ()
-...     
->>> def return_instance(cls):
-...     return cls()
-... 
->>> with ProcessPoolExecutor(max_workers=4) as e:
-...     e.submit(return_instance, CrashAtUnpickle).result()
-...     
-Exception in thread Thread-132:
-Traceback (most recent call last):
-    ....
-    raise RuntimeError()
-RuntimeError
-
-^C
-```
 ]
 
 ---
 class: middle, center
 
-# Reusable pool of workers: `loky`.
-
----
-# `loky`: a robust pool of workers
-
-
-.normal[
-```python
->>> from loky import ProcessPoolExecutor
->>> class CrashAtPickle(object):
-...     """Bad object that triggers a segfault at unpickling time."""
-...     def __reduce__(self):
-...         raise RuntimeError()
-...     
->>> with ProcessPoolExecutor(max_workers=4) as e:
-...     e.submit(CrashAtPickle()).result()
-...     
-Traceback (most recent call last):
-...
-RuntimeError
-Traceback (most recent call last):
-...
-BrokenExecutor: The QueueFeederThread was terminated abruptly while feeding a
-new job. This can be due to a job pickling error.
->>>
-```
-
-- Return and raise a user friendly exception.
-- Fix some other deadlocks.
-
-
-]
+# Robust and reusable pool of workers: `loky`
 
 ---
 # A reusable `ProcessPoolExecutor`
 
-.left-column[
+.wide-left-column[
 ```python
 *>>> from loky import get_reusable_executor
-*>>> excutor = get_reusable_executor(max_workers=4)
-*>>> print(excutor.executor_id)
+*>>> executor = get_reusable_executor(max_workers=4)
+*>>> print(executor.executor_id)
 *0
 
->>> excutor.submit(id, 42).result()
+>>> executor.submit(id, 42).result()
 139655595838272
 
->>> excutor = get_reusable_executor(max_workers=4)
->>> print(excutor.executor_id)
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
 0
 
->>> excutor.submit(CrashAtUnpickle()).result()
+>>> executor.submit(CrashAtUnpickle()).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
->>> excutor = get_reusable_executor(max_workers=4)
->>> print(excutor.executor_id)
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
 1
->>> excutor.submit(id, 42).result()
+>>> executor.submit(id, 42).result()
 139655595838272
 
 ```
 ]
 
-.right-column[
+.small-right-column[
 
 Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor`.
 
@@ -819,33 +731,33 @@ Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor
 count: false
 # A reusable `ProcessPoolExecutor`
 
-.left-column[
+.wide-left-column[
 ```python
 >>> from loky import get_reusable_executor
->>> excutor = get_reusable_executor(max_workers=4)
->>> print(excutor.executor_id)
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
 0
 
-*>>> excutor.submit(id, 42).result()
+*>>> executor.submit(id, 42).result()
 *139655595838272
 
->>> excutor = get_reusable_executor(max_workers=4)
->>> print(excutor.executor_id)
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
 0
 
->>> excutor.submit(CrashAtUnpickle()).result()
+>>> executor.submit(CrashAtUnpickle()).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
->>> excutor = get_reusable_executor(max_workers=4)
->>> print(excutor.executor_id)
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
 1
->>> excutor.submit(id, 42).result()
+>>> executor.submit(id, 42).result()
 139655595838272
 
 ```
 ]
-.right-column[
+.small-right-column[
 Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor`.
 
 The executor can be used exactly as `ProcessPoolExecutor`.
@@ -856,33 +768,33 @@ The executor can be used exactly as `ProcessPoolExecutor`.
 count: false
 # A reusable `ProcessPoolExecutor`
 
-.left-column[
+.wide-left-column[
 ```python
 >>> from loky import get_reusable_executor
->>> excutor = get_reusable_executor(max_workers=4)
->>> print(excutor.executor_id)
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
 0
 
->>> excutor.submit(id, 42).result()
+>>> executor.submit(id, 42).result()
 139655595838272
 
-*>>> excutor = get_reusable_executor(max_workers=4)
-*>>> print(excutor.executor_id)
+*>>> executor = get_reusable_executor(max_workers=4)
+*>>> print(executor.executor_id)
 *0
 
->>> excutor.submit(CrashAtUnpickle()).result()
+>>> executor.submit(CrashAtUnpickle()).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
->>> excutor = get_reusable_executor(max_workers=4)
->>> print(excutor.executor_id)
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
 1
->>> excutor.submit(id, 42).result()
+>>> executor.submit(id, 42).result()
 139655595838272
 
 ```
 ]
-.right-column[
+.small-right-column[
 Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor`.
 
 The executor can be used exactly as `ProcessPoolExecutor`.
@@ -895,33 +807,33 @@ When the factory is called elsewhere, reuse the same executor if it is working.
 count: false
 # A reusable `ProcessPoolExecutor`
 
-.left-column[
+.wide-left-column[
 ```python
 >>> from loky import get_reusable_executor
->>> excutor = get_reusable_executor(max_workers=4)
->>> print(excutor.executor_id)
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
 0
 
->>> excutor.submit(id, 42).result()
+>>> executor.submit(id, 42).result()
 139655595838272
 
->>> excutor = get_reusable_executor(max_workers=4)
->>> print(excutor.executor_id)
+>>> executor = get_reusable_executor(max_workers=4)
+>>> print(executor.executor_id)
 0
 
->>> excutor.submit(CrashAtUnpickle()).result()
-Traceback (most recent call last):
-...
+*>>> executor.submit(CrashAtUnpickle()).result()
+*Traceback (most recent call last):
+*...
 *BrokenExecutorError
-*>>> excutor = get_reusable_executor(max_workers=4)
-*>>> print(excutor.executor_id)
+*>>> executor = get_reusable_executor(max_workers=4)
+*>>> print(executor.executor_id)
 *1
->>> excutor.submit(id, 42).result()
-139655595838272
+*>>> executor.submit(id, 42).result()
+*139655595838272
 
 ```
 ]
-.right-column[
+.small-right-column[
 Create a `ProcessPoolExecutor` using the factory function `get_reusable_executor`.
 
 The executor can be used exactly as `ProcessPoolExecutor`.

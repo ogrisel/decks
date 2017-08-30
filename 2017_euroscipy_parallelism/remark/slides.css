@@ -160,6 +160,7 @@ a:visited {
 .small-right-column {
   width: 38%;
   float: right;
+  font-size: 120%;
 }
 
 .left-column, .right-column {
