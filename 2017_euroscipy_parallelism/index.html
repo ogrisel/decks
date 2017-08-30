@@ -34,30 +34,27 @@ Thomas Moreau - **Olivier Grisel**
 
 .normal2[
 Three APIs available:
-- `multiprocessing`: first implementation.<br/><br/>
+- `multiprocessing.Pool`: first implementation<br/><br/>
 
-- `concurrent.futures`: reimplementation using `multiprocessing` under the hood.<br/><br/>
+- `concurrent.futures`: new API reusing some `multiprocessing` under the hood<br/><br/>
 
-- `loky`: robustification of `concurrent.futures`.<br/><br/>
+- `loky`: robustification of `concurrent.futures`<br/><br/>
 ]
 
 
 ---
-## The `Future` object: an asynchronous result state.
+class: middle, center
 
-### States
+# `concurrent.futures`
 
-.normal[
+---
+## The `Future` object
 
-`Future`: reference to the result of some asynchronous computation
+### `Future`: reference to the result of some asynchronous computation
 
-4 states:
-.state[Not started], .state[Running], .state[Cancelled] and .state[Done]
+### 4 states: .state[Not started], .state[Running], .state[Cancelled] and .state[Done]
 
-The state of a `Future` can be checked using `f.running, f.cancelled, f.done`.
-
-]
-
+### Can be checked using `f.running, f.cancelled, f.done`
 
 .left-column[.normal[
 ### Blocking methods
@@ -370,22 +367,6 @@ with ThreadPoolExecutor(max_workers=4) as executor:
 ![:scale 100%](images/8_final.png)
 ]
 
-<!---
-
-
-<div class="mermaid">
-classDiagram
-    MainProcess .. CommunicationQueue
-    CommunicationQueue .. Worker1
-    CommunicationQueue .. Worker2
-    CommunicationQueue .. Worker3
-    CommunicationQueue .. Worker4
-    MainProcess : fit_model()
-</div>
--->
-
-
-
 ---
 class: middle, center
 
@@ -439,11 +420,9 @@ count: false
 
 .normal[
 
-- Only one thread can acquire it at a time.
+**Global lock everytime we access a python object**
 
-- Not designed for efficient multicore computing.
-
-**Global lock everytime we access a python object.**
+Not designed for efficient multicore computing
 
 Released when performing long I/O operations
 
@@ -490,12 +469,13 @@ Even worse:
 1 loop, best of 3: 409 ms per loop
 
 >>> %%timeit
-... t1 = Thread(target=count,args=(10000000,))
-... t2 = Thread(target=count,args=(10000000,))
+... t1 = Thread(target=count, args=(5000000,))
+... t2 = Thread(target=count, args=(5000000,))
 ... t1.start(); t2.start()
 ... t1.join(); t2.join()
 
-1 loop, best of 3: 836 ms per loop
+1 loop, best of 3: 401
+ ms per loop
 ```
 ]
 
@@ -535,20 +515,21 @@ Even worse:
 count: false
 
 .normal[
-**But there is GIL contention anymore!**
+**No GIL contention anymore!**
 <br/></br/>
 The computation can be done in parallel even for python code.
 
 ]
 
---
-count: false
+---
+class: center, middle
 
-.normal[
-<br/>
-Methods to create a new interpreter: *fork* or *spawn*
+# Methods to create a new interpreter:
 
-]
+# *fork* or *spawn*
+
+
+*spawn* is `fork` followed by `exec` on POSIX
 
 ---
 # Launching a new interpreter: *fork*
@@ -556,15 +537,15 @@ Methods to create a new interpreter: *fork* or *spawn*
 
 .normal[
 
-Duplicate the current interpreter. (Only available on UNIX)
+Duplicate the current interpreter (only on UNIX)
 
 
 .left-column[
 **Advantages:**
 
-- Low spawning overhead.
+- Low spawning overhead
 
-- The interpreter is warm *imported*.
+- The interpreter is warm *imported*
 
 ]
 .right-column[
@@ -578,7 +559,7 @@ Duplicate the current interpreter. (Only available on UNIX)
 .reset-column[
 
 ]
-$\Rightarrow$ Some libraries crash: numpy on OSX (Accelerate), OpenMP from GCC...
+$\Rightarrow$ **crash**: numpy on OSX (Accelerate), OpenMP (XGBoost, spaCy, OpenCV...)
 ]
 
 
@@ -588,7 +569,7 @@ $\Rightarrow$ Some libraries crash: numpy on OSX (Accelerate), OpenMP from GCC..
 
 .normal[
 
-Create a new interpreter from scratch.
+Create a new interpreter from scratch
 
 
 .left-column[
@@ -596,7 +577,7 @@ Create a new interpreter from scratch.
 
 - Safe (respect POSIX)
 
-- Fresh interpreter without extra libraries.
+- Fresh interpreter without extra libraries
 
 ]
 .right-column[
@@ -618,7 +599,7 @@ Create a new interpreter from scratch.
 | Efficient multicore on pure Python code | ![](images/no.jpg) | ![](images/ok.jpg) | ![](images/ok.jpg) |
 | No communication overhead | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/no.jpg) |
 | POSIX safe    | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/ok.jpg) |
-| No spawning overhead | ![](images/ok.jpg) | ![](images/ok.jpg) | ![](images/no.jpg) |
+| Low spawning overhead | ![](images/ok.jpg) | ![](images/ok.jpg) | ![](images/no.jpg) |
 ]
 
 ---
@@ -630,30 +611,29 @@ Create a new interpreter from scratch.
 | Efficient multicore on pure Python code | ![](images/no.jpg) | ![](images/ok.jpg) | ![](images/ok.jpg) |
 | No communication overhead | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/no.jpg) |
 | POSIX safe    | ![](images/ok.jpg) | ![](images/no.jpg) | ![](images/ok.jpg) |
-| No spawning overhead | ![](images/ok.jpg) | ![](images/ok.jpg) | <img src="images/no_loky.png" alt="" style="width: 4em;"> |
+| Low spawning overhead | ![](images/ok.jpg) | ![](images/ok.jpg) | <img src="images/no_loky.png" alt="" style="width: 4em;"> |
 ]
 
 .centered[.normal[
 <br/>
-$\Rightarrow$ Hide the spawning overhead by reusing the pool of processes.
+$\Rightarrow$ Hide the spawning overhead by reusing the pool of processes
 ]]
 
 ---
 class: middle, center
 
-# Reusing a `ProcessPoolExecutor`.
+# Reusing a `ProcessPoolExecutor`
 
 ---
-# Reusing a `ProcessPoolExecutor`.
+# Reusing a `ProcessPoolExecutor`
 
 <br/>
 .normal2[
 
-To Avoid the spawning overhead, reuse a previously started `ProcessPoolExecutor`.
+Reuse a previously started global `ProcessPoolExecutor` singleton
 
-The spawning overhead is only paid once.
+The spawning overhead is only paid once
 
-Easy using a global pool of process.  
 __Main issue:__ is that robust?
 ]
 
@@ -679,8 +659,7 @@ attribute lookup <lambda> on __main__ failed
 
 ```
 
-The executor is deadlocked: the exception is printed on stderr but cannot
-be caught.
+Deadlock: the exception is printed on stderr but cannot be caught.
 
 ]
 
@@ -706,7 +685,7 @@ class: middle, center
 >>> print(executor.executor_id)
 0
 
->>> executor.submit(CrashAtUnpickle()).result()
+>>> executor.submit(func, crash_when_unpickled).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
@@ -745,7 +724,7 @@ count: false
 >>> print(executor.executor_id)
 0
 
->>> executor.submit(CrashAtUnpickle()).result()
+>>> executor.submit(func, crash_when_unpickled).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
@@ -782,7 +761,7 @@ count: false
 *>>> print(executor.executor_id)
 *0
 
->>> executor.submit(CrashAtUnpickle()).result()
+>>> executor.submit(func, crash_when_unpickled).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
@@ -821,7 +800,7 @@ count: false
 >>> print(executor.executor_id)
 0
 
-*>>> executor.submit(CrashAtUnpickle()).result()
+*>>> executor.submit(func, crash_when_unpickled).result()
 *Traceback (most recent call last):
 *...
 *BrokenExecutorError
@@ -864,7 +843,6 @@ class: middle, center
 ### Control number of threads with env variables:
 
 - `OPENBLAS_NUM_THREADS=2 python mycode.py`
-
 - `MKL_NUM_THREADS=2 python mycode.py`
 
 ---
