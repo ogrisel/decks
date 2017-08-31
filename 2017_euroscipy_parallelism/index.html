@@ -26,6 +26,12 @@ Thomas Moreau - **Olivier Grisel**
 ![Inria](images/inria-logo.png)
 ]
 
+<br/>
+
+.normal[
+https://ogrisel.github.io/decks
+]
+
 ---
 # Outline
 
@@ -691,7 +697,7 @@ class: middle, center
 >>> print(executor.executor_id)
 0
 
->>> executor.submit(func, crash_when_unpickled).result()
+>>> executor.submit(func, unpicklable_obj).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
@@ -730,7 +736,7 @@ count: false
 >>> print(executor.executor_id)
 0
 
->>> executor.submit(func, crash_when_unpickled).result()
+>>> executor.submit(func, unpicklable_obj).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
@@ -767,7 +773,7 @@ count: false
 *>>> print(executor.executor_id)
 *0
 
->>> executor.submit(func, crash_when_unpickled).result()
+>>> executor.submit(func, unpicklable_obj).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
@@ -805,7 +811,7 @@ count: false
 >>> print(executor.executor_id)
 0
 
-*>>> executor.submit(func, crash_when_unpickled).result()
+*>>> executor.submit(func, unpicklable_obj).result()
 *Traceback (most recent call last):
 *...
 *BrokenExecutorError
@@ -846,7 +852,7 @@ count: false
 >>> print(executor.executor_id)
 0
 
->>> executor.submit(func, crash_when_unpickled).result()
+>>> executor.submit(func, unpicklable_obj).result()
 Traceback (most recent call last):
 ...
 BrokenExecutorError
