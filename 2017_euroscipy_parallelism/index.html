@@ -899,6 +899,21 @@ class: center, middle
 # Roofline Analysis
 
 ---
+# Roofline Analysis
+
+### Compute bound: speed of CPU, e.g. 100 GFLOP/s
+
+### Memory bound: speed of RAM, e.g. 50 GByte/s
+
+### Arithmetic Intensity: compute / data transfer
+
+### Example Matrix Matrix multiplication (n, k, m)
+
+#### Compute: `~ 2 * m * n * k`
+
+#### Data: `(m * k + n * k) + m * n`
+
+---
 class: center, middle
 
 ![MKL roofline](images/roofline_mkl.png)
