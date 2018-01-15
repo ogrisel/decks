@@ -235,6 +235,132 @@ background-size: contain
 
 ---
 class: center, middle, bgheader
+background-image: url(images/racks-8533890844_02fa24474d_o.jpg)
+background-size: cover
+
+# Scaling predictive modeling
+
+---
+# The need for scaling out in ML
+
+.middlebelowheader[
+
+### I/O intensive feature engineering and model scoring
+
+#### Loading, filtering, joining, aggregating: SQL-land
+
+#### Click log ⇒ Session features ⇒ User activity features
+
+### CPU intensive model fitting
+
+#### Hyper-parameter search and cross-validation
+
+#### Gradient Boosting, Random Forests, Large Neural Networks
+
+]
+
+---
+# Limitations of PySpark
+
+.middlebelowheader[
+
+### Python driver -> Scala / JVM -> Python worker
+
+#### Latency induced by the networked architecture
+
+#### Complex traceback / errors for non-scala developers
+
+### No pure Python local mode for PySpark
+
+#### Impossible to use profiler or ipdb for inner calls
+
+]
+
+---
+# dask
+
+.middlebelowheader[
+
+- Collection API similar to NumPy array and Pandas DataFrame objects
+
+- Custom workloads via tasks scheduling API
+
+- Pure python and low overhead
+
+- **Scales up**: runs on clusters with 1000s of cores
+
+- **Scales down**: runs on a laptop in a single process
+
+- Experimental integration with sklearn: [dask-ml](http://dask-ml.readthedocs.io)
+
+]
+
+---
+class: singleimg
+# dask bags &amp; compute graphs
+
+```python
+>>> import dask.bag as db
+>>> b = db.from_s3('githubarchive-data', '2015-01-01-*.json.gz')
+          .map(json.loads)
+          .map(lambda d: d['type'] == 'PushEvent')
+          .count()
+```
+
+![dask embarrasing](images/dask-bag-embarassing.png)
+
+---
+class: singleimg
+# dask arrays &amp; compute graphs
+
+```python
+>>> import dask.array as da
+>>> x = da.ones((5000, 1000), chunks=(1000, 1000))
+>>> u, s, v = da.linalg.svd(x)
+```
+
+![dask svd](images/dask-svd.png)
+
+---
+# Demo
+
+.middlebelowheader[
+
+https://github.com/ogrisel/docker-distributed
+
+Have a look a the notebooks in the `examples` folder.
+
+.center[
+
+<iframe width="420" height="315"
+  src="https://www.youtube.com/embed/6mKNSEQ0FIQ"
+  frameborder="0" allowfullscreen></iframe>
+
+https://youtu.be/6mKNSEQ0FIQ - [Local video](videos/distributed_demo_with_dask.ogv)
+]
+]
+
+---
+# Dask + Distributed limitations
+
+.middlebelowheader[
+
+### Younger project (under very active development)
+
+### `dask.dataframe` ⊂ `pandas.DataFrame` or PySpark
+
+#### Simple design: e.g. no predicate push-down in dataframe
+
+#### dask-scheduler is a single point of failure
+
+#### Not meant for multi-tenancy (yet?)
+
+#### Scikit-learn integration: experimental
+]
+
+
+---
+class: center, middle, bgheader
 background-color: rgb(30, 100, 0)
 
 # Conclusion
@@ -284,88 +410,6 @@ class: middle
 - Slides: [ogrisel.github.io/decks/2017_intro_sklearn](http://ogrisel.github.io/decks/2017_intro_sklearn)
 
 - @ogrisel on twitter
-
----
-class: center, middle, bgheader
-background-image: url(images/racks-8533890844_02fa24474d_o.jpg)
-background-size: cover
-
-# Scaling predictive modeling
-
----
-# The need for scaling out in ML
-
-.middlebelowheader[
-
-### I/O intensive feature engineering and model scoring
-
-#### Loading, filtering, joining, aggregating: SQL-land
-
-#### Click log ⇒ Session features ⇒ User activity features
-
-### CPU intensive model fitting
-
-#### Hyper-parameter search and cross-validation
-
-#### Gradient Boosting, Random Forests, Large Neural Networks
-
-]
-
----
-# Limitations of PySpark
-
-.middlebelowheader[
-
-### Python driver -> Scala / JVM -> Python worker
-
-#### Latency induced by the networked architecture
-
-#### Complex traceback / errors for non-scala developers
-
-### No pure Python local mode for PySpark
-
-#### Impossible to use profiler or ipdb for inner calls
-
-]
-
----
-# Dask + Distributed
-
-.middlebelowheader[
-
-### Collections oriented API:
-
-- `dask.bag`
-- `dask.array`
-- `dask.dataframe`
-
-### `dask.delayed`: procedural definition of the compute graph
-
-### `distributed` provides cluster scheduler
-
-### Experimental integration with sklearn: [dask-ml](http://dask-ml.readthedocs.io)
-
-]
-
-
----
-# Dask + Distributed limitations
-
-.middlebelowheader[
-
-### Younger project (under very active development)
-
-### `dask.dataframe` ⊂ `pandas.DataFrame` or PySpark
-
-#### Simple design: e.g. no predicate push-down in dataframe
-
-#### dask-scheduler is a single point of failure
-
-#### Not meant for multi-tenancy (yet?)
-
-]
-
-
 
 ---
 class: center, middle, bgheader
