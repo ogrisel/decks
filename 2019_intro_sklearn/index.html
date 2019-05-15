@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="slides.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Introduction to scikit-learn
+## Predictive modeling in Python
+
+Olivier Grisel
+
+.affiliations[
+  ![Fondation Inria](images/fondation-inria_logo.png)
+  ![scikit-learn](images/scikit-learn-logo.png)
+]
+
+Slides: [ogrisel.github.io/decks/2019_intro_sklearn](http://ogrisel.github.io/decks/2019_intro_sklearn)
+
+---
+# Agenda
+
+.middlebelowheader[
+
+### Machine Learning refresher
+
+### Where do predictive models fit?
+
+### Scikit-learn
+
+### The open-source development process
+
+]
+
+---
+# Predictive Modeling 101
+
+.middlebelowheader[
+
+### Make predictions of outcome of repeated events
+
+### Extract the structure of historical records
+
+### Statistical tools to summarize the training data into an executable model
+
+### Alternative to hard-coded rules written by experts
+
+]
+
+---
+background-image: url(images/real-estate-1.png)
+background-size: contain
+
+---
+background-image: url(images/real-estate-2.png)
+background-size: contain
+
+---
+background-image: url(images/real-estate-3.png)
+background-size: contain
+
+---
+background-image: url(images/real-estate-4.png)
+background-size: contain
+
+---
+background-image: url(images/01-predictive-modeling-flow.png)
+background-size: contain
+
+---
+background-image: url(images/02-predictive-modeling-flow.png)
+background-size: contain
+
+---
+background-image: url(images/03-small-data-xl.png)
+background-size: contain
+
+---
+background-image: url(images/04-small-medium-python.png)
+background-size: contain
+
+---
+background-image: url(images/05-small-medium-python-pandas.png)
+background-size: contain
+
+---
+background-image: url(images/06-small-medium-pandas-sklearn.png)
+background-size: contain
+
+---
+background-image: url(images/07-big-hive.png)
+background-size: contain
+
+---
+background-image: url(images/08-big-hive-python.png)
+background-size: contain
+
+---
+background-image: url(images/09-big-redshift-python.png)
+background-size: contain
+
+---
+background-image: url(images/10-big-spark-spark.png)
+background-size: contain
+
+---
+background-image: url(images/predictive-modeling-examples.png)
+background-size: contain
+
+---
+class: center, middle, bgheader
+background-image: url(images/forest-9026372290_ffed331779_k.jpg)
+background-size: cover
+
+# Where do predictive models fit?
+
+---
+background-image: url(images/11-big-data-archictecture.png)
+background-size: contain
+
+---
+background-image: url(images/12-big-data-tools-mix-1.png)
+background-size: contain
+
+---
+background-image: url(images/13-big-data-tools-mix-2.png)
+background-size: contain
+
+
+---
+class: center, middle, bgheader
+background-color: rgb(30, 100, 0)
+
+# Scikit-learn
+
+---
+.center[
+![scikit-learn](images/scikit-learn-logo.png)
+]
+
+.middlebelowheader[
+
+### Library of Machine Learning algorithms
+
+### Open Source project
+
+
+### Python / NumPy / SciPy / Cython
+
+### Simple **fit** / **predict** / **transform** API
+
+### Model Assessment, Selection, Ensembles
+
+]
+
+---
+.center[
+![scikit-learn](images/scikit-learn-logo.png)
+]
+
+.middlebelowheader[
+
+### Core team: Australia, China, France, Germany, USA
+
+### Users: Scientific/Academic and Business/Industry
+
+<img src="images/users_stats.png" width="100%" />
+
+]
+
+---
+background-image: url(images/sklearn-flow-1.png)
+background-size: contain
+
+---
+background-image: url(images/sklearn-flow-2.png)
+background-size: contain
+
+---
+background-image: url(images/sklearn-flow-3.png)
+background-size: contain
+
+---
+# Support Vector Machine
+
+
+.middlebelowheader.medium[
+```python
+from sklearn.svm import SVC
+
+model = SVC(kernel="rbf", C=1.0, gamma=1e-4)
+
+model.fit(X_train, y_train)
+
+
+y_predicted = model.predict(X_test)
+
+from sklearn.metrics import f1_score
+f1_score(y_test, y_predicted)
+```
+]
+
+---
+# Linear Classifier
+
+
+.middlebelowheader.medium[
+```python
+from sklearn.linear_model import LogisticRegression
+
+model = LogisticRegression(C=1, penalty='l1')
+
+model.fit(X_train, y_train)
+
+
+y_predicted = model.predict(X_test)
+
+from sklearn.metrics import f1_score
+f1_score(y_test, y_predicted)
+```
+]
+
+---
+# Random Forest
+
+
+.middlebelowheader.medium[
+```python
+from sklearn.ensemble import RandomForestClassifier
+
+model = RandomForestClassifier(n_estimators=200)
+
+model.fit(X_train, y_train)
+
+
+y_predicted = model.predict(X_test)
+
+from sklearn.metrics import f1_score
+f1_score(y_test, y_predicted)
+```
+]
+
+---
+background-image: url(images/classifier_comparison.png)
+background-size: contain
+
+---
+background-image: url(images/scikit-learn.org.png)
+background-size: contain
+
+---
+class: center, middle, bgheader
+background-image: url(images/racks-8533890844_02fa24474d_o.jpg)
+background-size: cover
+
+# Scikit-learn development
+
+---
+background-image: url(images/list_of_open_prs.png)
+background-size: contain
+
+---
+background-image: url(images/pr-1.png)
+background-size: contain
+
+---
+background-image: url(images/pr-1.1.png)
+background-size: contain
+
+---
+background-image: url(images/pr-2.png)
+background-size: contain
+
+---
+background-image: url(images/pr-2.png)
+background-size: contain
+
+---
+background-image: url(images/pr-3.png)
+background-size: contain
+
+---
+background-image: url(images/pr-4.png)
+background-size: contain
+
+---
+background-image: url(images/changelog.png)
+background-size: contain
+
+---
+background-image: url(images/contributors.png)
+background-size: contain
+
+---
+background-image: url(images/fondation_inria_scikit-learn_partners.png)
+background-size: contain
+
+---
+background-image: url(images/community.png)
+background-size: contain
+
+---
+class: center, middle, bgheader
+background-color: rgb(30, 100, 0)
+
+# Conclusion
+
+---
+class: middle, center, singleimg
+
+![Changing stuff and see what happens](images/changing-stuff-models.png)
+
+---
+# Secrets of the success of Python (&amp; R) in Data Science
+
+.middlebelowheader[
+
+### Iterative exploration with built-in plotting tools
+
+### Low latency of single host in-memory computing
+
+### Easy to install, easy to teach: no-sysadmin required
+
+### Rich ecosystem of libraries
+
+]
+
+---
+class: middle
+
+# Thank you for your attention!
+
+- https://scikit-learn.org
+
+- Slides: [ogrisel.github.io/decks/2019_intro_sklearn](http://ogrisel.github.io/decks/2019_intro_sklearn)
+
+- @ogrisel on twitter
+
+
+---
+Background image credits
+
+- https://www.flickr.com/photos/jemimus/8533890844/
+
+- https://www.flickr.com/photos/antcaz/2249694239/
+
+- https://www.flickr.com/photos/benjamine-s/14004414605
+
+- https://www.flickr.com/photos/a-herzog/9026372290
+    </textarea>
+    <script src="remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        highlightStyle: 'github'
+      });
+    </script>
+  </body>
+</html>
