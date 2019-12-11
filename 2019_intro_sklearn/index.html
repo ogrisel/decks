@@ -203,14 +203,14 @@ background-image: url(images/sklearn-flow-3.png)
 background-size: contain
 
 ---
-# Support Vector Machine
+# Linear Classifier
 
 
 .middlebelowheader.medium[
 ```python
-from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 
-model = SVC(kernel="rbf", C=1.0, gamma=1e-4)
+model = LogisticRegression(C=1, penalty='l1')
 
 model.fit(X_train, y_train)
 
@@ -223,14 +223,14 @@ f1_score(y_test, y_predicted)
 ]
 
 ---
-# Linear Classifier
+# Support Vector Machine
 
 
 .middlebelowheader.medium[
 ```python
-from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 
-model = LogisticRegression(C=1, penalty='l1')
+model = SVC(kernel="rbf", C=1.0, gamma=1e-4)
 
 model.fit(X_train, y_train)
 
